@@ -10,7 +10,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-- Add batch write/read (using FileChannel) with customizable batch size.
+- Add batch write/read (using FileChannel) with customizable batch size;
+- Add concurrent access to queue (methods with `synchronized` keyword or based on locks).
 
 ## [1.0.0](https://github.com/infobip/popout/releases/tag/1.0.0) - 2018-01-18
 

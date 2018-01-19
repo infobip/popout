@@ -2,6 +2,7 @@
 # Popout
 
 [![build_status](https://travis-ci.org/infobip/popout.svg?branch=master)](https://travis-ci.org/infobip/popout)
+[![maven_central](https://maven-badges.herokuapp.com/maven-central/org.infobip.lib/popout/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.infobip.lib/popout)
 
 `Popout` is a file-based queue for Java.
 
