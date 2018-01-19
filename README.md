@@ -1,6 +1,8 @@
 
 # Popout
 
+[![build_status](https://travis-ci.org/infobip/popout.svg?branch=master)](https://travis-ci.org/infobip/popout)
+
 `Popout` is a file-based queue for Java.
 
 ## Contents
