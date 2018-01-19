@@ -11,7 +11,7 @@ install:
   mvn --settings .settings.xml clean install -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -B -V
 
 script:
-  mvn --settings .settings.xml test -DskipTests=false -Dmaven.javadoc.skip=false -B -U
+  mvn --settings .settings.xml verify -DskipTests=false -Dmaven.javadoc.skip=false -B -U
 
 before_deploy:
   - mvn help:evaluate -N -Dexpression=project.version | grep -v '\['
