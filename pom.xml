@@ -38,11 +38,11 @@ limitations under the License.
   <description>
     File based queue implementation
   </description>
-  <url>https://git.ib-ci.com/projects/POP/repos/popout</url>
+  <url>https://github.com/infobip/popout</url>
   <inceptionYear>2018</inceptionYear>
 
   <organization>
-    <name>Infobip</name>
+    <name>Infobip Ltd.</name>
     <url>https://www.infobip.com</url>
   </organization>
 
@@ -55,14 +55,25 @@ limitations under the License.
   </licenses>
 
   <scm>
-    <url>https://git.ib-ci.com/pop/popout</url>
-    <connection>scm:git:https://git.ib-ci.com/pop/popout.gitt</connection>
-    <developerConnection>scm:git:https://git.ib-ci.com/pop/popout.git</developerConnection>
+    <url>https://github.com/infobip/popout</url>
+    <connection>scm:git:https://github.com/infobip/popout.git</connection>
+    <developerConnection>scm:git:https://github.com/infobip/popout.git</developerConnection>
     <tag>1.0.0</tag>
   </scm>
 
+  <issueManagement>
+    <system>GitHub Issues</system>
+    <url>https://github.com/infobip/popout/issues</url>
+  </issueManagement>
+
+  <ciManagement>
+    <system>Travis</system>
+    <url>https://travis-ci.org/infobip/popout</url>
+  </ciManagement>
+
   <developers>
     <developer>
+      <id>xxlabaza</id>
       <name>Artem Labazin</name>
       <email>xxlabaza@gmail.com</email>
     </developer>

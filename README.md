@@ -208,7 +208,7 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 
 ## Authors
 
-* **[Artem Labazin](https://github.com/xxlabaza)** - the main creator and developer
+* **[Artem Labazin](https://github.com/xxlabaza)** - creator and the main developer
 
 ## License
 
