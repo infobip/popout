@@ -3,13 +3,19 @@ language: java
 jdk:
   - oraclejdk8
 
+before_install:
+  - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
+  - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
+
+install:
+  mvn --settings .settings.xml install -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=false -B -V
+
 before_deploy:
   - mvn help:evaluate -N -Dexpression=project.version | grep -v '\['
   - export project_version=$(mvn help:evaluate -N -Dexpression=project.version | grep -v '\[')
 
-install:
-  # Override default travis to use the maven wrapper
-  - mvn install -DskipTests=true -Dmaven.javadoc.skip=false -B -V
+script:
+  mvn clean deploy --settings .settings.xml -DskipTests=true -B -U
 
 deploy:
   provider: releases
