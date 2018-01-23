@@ -26,7 +26,6 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
@@ -178,7 +177,7 @@ public class FolderReaderTest extends AbstractFolderBasedTest {
 
     @Test
     public void init () throws IOException {
-        MetadataFile metadata = new MetadataFile(Paths.get("popa.txt"));
+        MetadataFile metadata = new MetadataFile(TEST_FOLDER.resolve("popa.txt"));
         reader.init(metadata.getHead());
 
         assertThat(reader.getCurrentFileIndex()).isEqualTo(0);
