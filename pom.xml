@@ -32,6 +32,8 @@ limitations under the License.
 
     <maven.compiler.testTarget>1.8</maven.compiler.testTarget>
     <maven.compiler.testSource>1.8</maven.compiler.testSource>
+
+    <tests.jvm.arguments> </tests.jvm.arguments>
   </properties>
 
   <name>Popout</name>
@@ -124,6 +126,15 @@ limitations under the License.
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <profiles>
+    <profile>
+      <id>jdk9</id>
+      <properties>
+        <tests.jvm.arguments>--add-exports java.base/jdk.internal.ref=ALL-UNNAMED</tests.jvm.arguments>
+      </properties>
+    </profile>
+  </profiles>
 
   <build>
     <plugins>
@@ -231,7 +242,7 @@ limitations under the License.
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.20.1</version>
         <configuration>
-          <argLine>--add-exports java.base/jdk.internal.ref=ALL-UNNAMED</argLine>
+          <argLine>${tests.jvm.arguments}</argLine>
           <runOrder>random</runOrder>
           <includes>
             <include>**/*Test.java</include>

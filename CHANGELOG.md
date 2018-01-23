@@ -19,7 +19,8 @@ Minor update with set of small fixes and Java 9 support.
 
 ### Added
 
-- Java 9 support.
+- Java 9 support;
+- JDK9 build profile.
 
 ## [1.0.0](https://github.com/infobip/popout/releases/tag/1.0.0) - 2018-01-18
 

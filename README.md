@@ -153,7 +153,7 @@ For building routine automation, I am using [maven](https://maven.apache.org).
 To build the Popout project, do the following:
 
 ```bash
-$> mvn install
+$> mvn clean package
 ...
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
@@ -164,12 +164,18 @@ $> mvn install
 [INFO] ------------------------------------------------------------------------
 ```
 
+> **IMPORTANT:** If you use Java 9, add profile `jdk9` to your goals, like this:
+>
+> ```bash
+> $> mvn clean package -Pjdk9
+> ```
+
 ### Running the tests
 
 To run the project's test, do the following:
 
 ```bash
-$> mvn verify
+$> mvn clean test
 ...
 [INFO] -------------------------------------------------------
 [INFO]  T E S T S
