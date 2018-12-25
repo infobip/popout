@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import lombok.NonNull;
@@ -68,8 +69,10 @@ public final class ChannelFileReader implements FileReader {
 
     @Override
     public Optional<byte[]> next () {
-        return readInt()
-                .flatMap(this::read);
+        if (!hasNext()) {
+            throw new NoSuchElementException();
+        }
+        return readInt().flatMap(this::read);
     }
 
     @Override

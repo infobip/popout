@@ -22,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.NoSuchElementException;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -91,7 +92,8 @@ abstract class AbstractFileQueueTest extends AbstractFolderBasedTest {
   @Test
   void pollEmpty () {
     assertThat(isFolderEmpty()).isFalse();
-    assertThat(queue.poll()).isNull();
+    assertThatThrownBy(() -> queue.poll())
+        .isInstanceOf(NoSuchElementException.class);
   }
 
   @Test

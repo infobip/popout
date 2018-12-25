@@ -68,12 +68,13 @@ limitations under the License.
     <exclude name="CommentRequired" />
   </rule>
   <rule ref="category/java/errorprone.xml">
-    <exclude name="AvoidFieldNameMatchingTypeName" />
     <exclude name="AvoidFieldNameMatchingMethodName" />
+    <exclude name="AvoidFieldNameMatchingTypeName" />
     <exclude name="BeanMembersShouldSerialize" />
     <exclude name="DataflowAnomalyAnalysis" />
     <exclude name="DontImportSun" />
     <exclude name="MissingBreakInSwitch" />
+    <exclude name="NullAssignment" />
   </rule>
   <rule ref="category/java/multithreading.xml">
     <exclude name="DoNotUseThreads" />

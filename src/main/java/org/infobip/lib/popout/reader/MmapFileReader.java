@@ -33,6 +33,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import lombok.Builder;
@@ -97,8 +98,10 @@ public final class MmapFileReader implements FileReader {
 
     @Override
     public Optional<byte[]> next () {
-        return readInt()
-                .flatMap(this::read);
+        if (!hasNext()) {
+            throw new NoSuchElementException();
+        }
+        return readInt().flatMap(this::read);
     }
 
     @Override

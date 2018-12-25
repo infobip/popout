@@ -19,6 +19,7 @@ package org.infobip.lib.popout.reader;
 import static java.util.Arrays.asList;
 import static lombok.AccessLevel.PRIVATE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -27,6 +28,7 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import org.infobip.lib.popout.AbstractFolderBasedTest;
@@ -85,7 +87,8 @@ class FolderReaderTest extends AbstractFolderBasedTest {
   void loadEmptyFile () throws IOException {
     Files.createFile(TEST_FOLDER.resolve("batch-1.queue"));
 
-    assertThat(reader.readNext()).isNotPresent();
+    assertThatThrownBy(() -> reader.readNext())
+        .isInstanceOf(NoSuchElementException.class);
   }
 
   @Test

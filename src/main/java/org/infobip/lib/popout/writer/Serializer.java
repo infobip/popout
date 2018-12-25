@@ -16,6 +16,8 @@
 
 package org.infobip.lib.popout.writer;
 
+import java.io.IOException;
+
 /**
  * A serializer interface that transforms object to a byte array.
  *
@@ -32,7 +34,7 @@ public interface Serializer<T> {
      *
      * @return serialized result
      *
-     * @throws Exception in case of serialization error
+     * @throws IOException in case of serialization error
      */
-    byte[] serialize (T object) throws Exception;
+    byte[] serialize (T object) throws IOException;
 }

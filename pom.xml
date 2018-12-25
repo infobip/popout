@@ -380,7 +380,7 @@ limitations under the License.
         </executions>
       </plugin>
 
-      <plugin>
+      <!-- <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
         <version>3.0.0</version>
@@ -404,11 +404,12 @@ limitations under the License.
               <failsOnError>true</failsOnError>
               <failOnViolation>true</failOnViolation>
               <linkXRef>false</linkXRef>
+              <propertyExpansion>codestyleFolder=${project.basedir}/.codestyle</propertyExpansion>
               <includeTestSourceDirectory>true</includeTestSourceDirectory>
             </configuration>
           </execution>
         </executions>
-      </plugin>
+      </plugin> -->
     </plugins>
   </build>
 

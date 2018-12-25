@@ -19,12 +19,14 @@ package org.infobip.lib.popout.reader;
 import static java.nio.file.StandardOpenOption.APPEND;
 import static lombok.AccessLevel.PRIVATE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.NoSuchElementException;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -95,7 +97,8 @@ abstract class AbstractFileReaderTest {
   @Test
   void emptyRead () {
     assertThat(reader.hasNext()).isFalse();
-    assertThat(reader.next()).isNotPresent();
+    assertThatThrownBy(() -> reader.next())
+        .isInstanceOf(NoSuchElementException.class);
   }
 
   @Test
