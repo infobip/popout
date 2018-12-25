@@ -20,87 +20,87 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import org.assertj.core.api.SoftAssertions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  *
  * @author Artem Labazin
  */
-public class FilePatternTest {
+class FilePatternTest {
 
-    @Test
-    public void from () {
-        FilePattern pattern1 = FilePattern.from("batch-#.queue");
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(pattern1).isNotNull();
+  @Test
+  void from () {
+    FilePattern pattern1 = FilePattern.from("batch-#.queue");
+    SoftAssertions.assertSoftly(softly -> {
+      softly.assertThat(pattern1).isNotNull();
 
-            softly.assertThat(pattern1.getPrefix())
-                    .as("Pattern prefix")
-                    .isEqualTo("batch-");
+      softly.assertThat(pattern1.getPrefix())
+          .as("Pattern prefix")
+          .isEqualTo("batch-");
 
-            softly.assertThat(pattern1.getPostfix())
-                    .as("Pattern postfix")
-                    .isEqualTo(".queue");
-        });
+      softly.assertThat(pattern1.getPostfix())
+          .as("Pattern postfix")
+          .isEqualTo(".queue");
+    });
 
-        FilePattern pattern2 = FilePattern.from("#.queue");
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(pattern2).isNotNull();
+    FilePattern pattern2 = FilePattern.from("#.queue");
+    SoftAssertions.assertSoftly(softly -> {
+      softly.assertThat(pattern2).isNotNull();
 
-            softly.assertThat(pattern2.getPrefix())
-                    .as("Pattern prefix")
-                    .isEqualTo("");
+      softly.assertThat(pattern2.getPrefix())
+          .as("Pattern prefix")
+          .isEqualTo("");
 
-            softly.assertThat(pattern2.getPostfix())
-                    .as("Pattern postfix")
-                    .isEqualTo(".queue");
-        });
+      softly.assertThat(pattern2.getPostfix())
+          .as("Pattern postfix")
+          .isEqualTo(".queue");
+    });
 
-        FilePattern pattern3 = FilePattern.from("batch-#");
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(pattern3).isNotNull();
+    FilePattern pattern3 = FilePattern.from("batch-#");
+    SoftAssertions.assertSoftly(softly -> {
+      softly.assertThat(pattern3).isNotNull();
 
-            softly.assertThat(pattern3.getPrefix())
-                    .as("Pattern prefix")
-                    .isEqualTo("batch-");
+      softly.assertThat(pattern3.getPrefix())
+          .as("Pattern prefix")
+          .isEqualTo("batch-");
 
-            softly.assertThat(pattern3.getPostfix())
-                    .as("Pattern postfix")
-                    .isEqualTo("");
-        });
+      softly.assertThat(pattern3.getPostfix())
+          .as("Pattern postfix")
+          .isEqualTo("");
+    });
 
-        assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> FilePattern.from("batch.queue"))
-                .withMessage("Invalid file pattern 'batch.queue'. It doesn't have index char '#'");
-    }
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> FilePattern.from("batch.queue"))
+        .withMessage("Invalid file pattern 'batch.queue'. It doesn't have index char '#'");
+  }
 
-    @Test
-    public void getFileNameWith () {
-        FilePattern pattern = new FilePattern("batch-", ".queue");
-        assertThat(pattern.getFileNameWith(0))
-                .isEqualTo("batch-0.queue");
+  @Test
+  void getFileNameWith () {
+    FilePattern pattern = new FilePattern("batch-", ".queue");
+    assertThat(pattern.getFileNameWith(0))
+        .isEqualTo("batch-0.queue");
 
-        assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> pattern.getFileNameWith(-1))
-                .withMessage("Index must be greater or equal zero, current is -1");
-    }
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> pattern.getFileNameWith(-1))
+        .withMessage("Index must be greater or equal zero, current is -1");
+  }
 
-    @Test
-    public void matches () {
-        FilePattern pattern = new FilePattern("batch-", ".queue");
-        assertThat(pattern.matches("batch-0.queue")).isTrue();
-        assertThat(pattern.matches("batch-999.queue")).isTrue();
-        assertThat(pattern.matches("popa")).isFalse();
-    }
+  @Test
+  void matches () {
+    FilePattern pattern = new FilePattern("batch-", ".queue");
+    assertThat(pattern.matches("batch-0.queue")).isTrue();
+    assertThat(pattern.matches("batch-999.queue")).isTrue();
+    assertThat(pattern.matches("popa")).isFalse();
+  }
 
-    @Test
-    public void extractIndex () {
-        FilePattern pattern = new FilePattern("batch-", ".queue");
-        assertThat(pattern.extractIndex("batch-0.queue")).isEqualTo(0);
-        assertThat(pattern.extractIndex("batch-999.queue")).isEqualTo(999);
+  @Test
+  void extractIndex () {
+    FilePattern pattern = new FilePattern("batch-", ".queue");
+    assertThat(pattern.extractIndex("batch-0.queue")).isEqualTo(0);
+    assertThat(pattern.extractIndex("batch-999.queue")).isEqualTo(999);
 
-        assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> pattern.extractIndex("popa"))
-                .withMessage("File name 'popa' doesn't match the pattern");
-    }
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> pattern.extractIndex("popa"))
+        .withMessage("File name 'popa' doesn't match the pattern");
+  }
 }

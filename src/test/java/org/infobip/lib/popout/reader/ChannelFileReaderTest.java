@@ -24,8 +24,8 @@ import java.nio.file.Path;
  */
 public class ChannelFileReaderTest extends AbstractFileReaderTest {
 
-    @Override
-    protected FileReader createFileReader (Path path) {
-        return new ChannelFileReader(path);
-    }
+  @Override
+  protected FileReader createFileReader (Path path) {
+    return new ChannelFileReader(path);
+  }
 }

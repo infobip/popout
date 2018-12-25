@@ -29,64 +29,64 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 
 import lombok.SneakyThrows;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 /**
  *
  * @author Artem Labazin
  */
-@SuppressWarnings("checkstyle:DesignForExtension")
+// @SuppressWarnings("checkstyle:DesignForExtension")
 public abstract class AbstractFolderBasedTest {
 
-    protected static final Path TEST_FOLDER;
+  protected static final Path TEST_FOLDER;
 
-    static {
-        TEST_FOLDER = Paths.get("./test_data");
+  static {
+    TEST_FOLDER = Paths.get("./test_data");
+  }
+
+  @BeforeEach
+  public void before () throws IOException {
+    if (Files.isDirectory(TEST_FOLDER)) {
+      cleanup();
     }
+    Files.createDirectories(TEST_FOLDER);
+  }
 
-    @Before
-    public void before () throws IOException {
-        if (Files.isDirectory(TEST_FOLDER)) {
-            cleanup();
+  @AfterEach
+  public void after () throws IOException {
+    cleanup();
+  }
+
+  @SneakyThrows
+  protected boolean isFolderEmpty () {
+    return Files.isDirectory(TEST_FOLDER) && files().isEmpty();
+  }
+
+  @SneakyThrows
+  protected List<String> files () {
+    return Files.list(TEST_FOLDER)
+        .map(Path::getFileName)
+        .map(Path::toString)
+        .sorted()
+        .collect(toList());
+  }
+
+  @SneakyThrows
+  private void cleanup () {
+    Files.walkFileTree(TEST_FOLDER, new SimpleFileVisitor<Path>() {
+
+        @Override
+        public FileVisitResult postVisitDirectory (Path dir, IOException exc) throws IOException {
+          Files.delete(dir);
+          return CONTINUE;
         }
-        Files.createDirectories(TEST_FOLDER);
-    }
 
-    @After
-    public void after () throws IOException {
-        cleanup();
-    }
-
-    @SneakyThrows
-    protected boolean isFolderEmpty () {
-        return Files.isDirectory(TEST_FOLDER) && files().isEmpty();
-    }
-
-    @SneakyThrows
-    protected List<String> files () {
-        return Files.list(TEST_FOLDER)
-                .map(Path::getFileName)
-                .map(Path::toString)
-                .sorted()
-                .collect(toList());
-    }
-
-    @SneakyThrows
-    private void cleanup () {
-        Files.walkFileTree(TEST_FOLDER, new SimpleFileVisitor<Path>() {
-
-                @Override
-                public FileVisitResult postVisitDirectory (Path dir, IOException exc) throws IOException {
-                    Files.delete(dir);
-                    return CONTINUE;
-                }
-
-                @Override
-                public FileVisitResult visitFile (Path file, BasicFileAttributes attrs) throws IOException {
-                    Files.delete(file);
-                    return CONTINUE;
-                }
-        });
-    }
+        @Override
+        public FileVisitResult visitFile (Path file, BasicFileAttributes attrs) throws IOException {
+          Files.delete(file);
+          return CONTINUE;
+        }
+    });
+  }
 }

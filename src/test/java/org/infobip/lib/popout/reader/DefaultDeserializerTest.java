@@ -21,38 +21,43 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
 
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
 import lombok.Cleanup;
 import lombok.SneakyThrows;
 import lombok.val;
-import org.junit.Test;
 
 /**
  *
  * @author Artem Labazin
  */
-public class DefaultDeserializerTest {
+@DisplayName("Default deserializer tests")
+class DefaultDeserializerTest {
 
-    @Test
-    public void deserialize () {
-        String string = "Hello world";
-        byte[] bytes = serialize(string);
+  @Test
+  @DisplayName("success deserialization")
+  void deserialize () {
+    String string = "Hello world";
+    byte[] bytes = serialize(string);
 
-        Deserializer<String> deserializer = new DefaultDeserializer<>();
-        assertThat(deserializer.deserialize(bytes))
-                .isNotNull()
-                .isNotBlank()
-                .isEqualTo(string);
-    }
+    Deserializer<String> deserializer = new DefaultDeserializer<>();
+    assertThat(deserializer.deserialize(bytes))
+        .isNotNull()
+        .isNotBlank()
+        .isEqualTo(string);
+  }
 
-    @SneakyThrows
-    private byte[] serialize (Object object) {
-        @Cleanup
-        val byteArrayOutputStream = new ByteArrayOutputStream();
-        @Cleanup
-        val objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+  @SneakyThrows
+  private byte[] serialize (Object object) {
+    @Cleanup
+    val byteArrayOutputStream = new ByteArrayOutputStream();
+    @Cleanup
+    val objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
 
-        objectOutputStream.writeObject(object);
+    objectOutputStream.writeObject(object);
 
-        return byteArrayOutputStream.toByteArray();
-    }
+    return byteArrayOutputStream.toByteArray();
+  }
 }

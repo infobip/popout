@@ -21,35 +21,36 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
 
+import org.junit.jupiter.api.Test;
+
 import lombok.Cleanup;
 import lombok.SneakyThrows;
 import lombok.val;
-import org.junit.Test;
 
 /**
  *
  * @author Artem Labazin
  */
-public class DefaultSerializerTest {
+class DefaultSerializerTest {
 
-    @Test
-    public void serialize () throws Exception {
-        String string = "Hello world";
+  @Test
+  void serialize () throws Exception {
+    String string = "Hello world";
 
-        Serializer<String> serializer = new DefaultSerializer<>();
+    Serializer<String> serializer = new DefaultSerializer<>();
 
-        byte[] bytes = serializer.serialize(string);
-        assertThat(bytes).isNotNull();
+    byte[] bytes = serializer.serialize(string);
+    assertThat(bytes).isNotNull();
 
-        assertThat(deserialize(bytes)).isEqualTo(string);
-    }
+    assertThat(deserialize(bytes)).isEqualTo(string);
+  }
 
-    @SneakyThrows
-    private Object deserialize (byte[] bytes) {
-        @Cleanup
-        val byteArrayInputStream = new ByteArrayInputStream(bytes);
-        @Cleanup
-        val objectInputStream = new ObjectInputStream(byteArrayInputStream);
-        return objectInputStream.readObject();
-    }
+  @SneakyThrows
+  private Object deserialize (byte[] bytes) {
+    @Cleanup
+    val byteArrayInputStream = new ByteArrayInputStream(bytes);
+    @Cleanup
+    val objectInputStream = new ObjectInputStream(byteArrayInputStream);
+    return objectInputStream.readObject();
+  }
 }

@@ -26,122 +26,122 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
 import lombok.val;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
 
 /**
  *
  * @author Artem Labazin
  */
-@Ignore
+// @Ignore
 @FieldDefaults(level = PRIVATE)
 @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
 abstract class AbstractFileReaderTest {
 
-    private static final Path PATH = Paths.get("popa.txt");
+  private static final Path PATH = Paths.get("popa.txt");
 
-    FileReader reader;
+  FileReader reader;
 
-    @Before
-    public void before () throws IOException {
-        Files.deleteIfExists(PATH);
-        Files.createFile(PATH);
-        reader = createFileReader(PATH);
-    }
+  @BeforeEach
+  void before () throws IOException {
+    Files.deleteIfExists(PATH);
+    Files.createFile(PATH);
+    reader = createFileReader(PATH);
+  }
 
-    @After
-    public void after () throws IOException {
-        reader.close();
-        Files.deleteIfExists(PATH);
-    }
+  @AfterEach
+  void after () throws IOException {
+    reader.close();
+    Files.deleteIfExists(PATH);
+  }
 
-    @Test
-    public void readOne () {
-        byte[] expected = write("Hello world");
+  @Test
+  void readOne () {
+    byte[] expected = write("Hello world");
 
-        assertThat(reader.hasNext()).isTrue();
-        assertThat(reader.next())
-                .isPresent()
-                .hasValue(expected);
-    }
+    assertThat(reader.hasNext()).isTrue();
+    assertThat(reader.next())
+        .isPresent()
+        .hasValue(expected);
+  }
 
-    @Test
-    public void readMany () {
-        byte[] expected1 = write("one");
-        byte[] expected2 = write("two");
-        byte[] expected3 = write("three");
+  @Test
+  void readMany () {
+    byte[] expected1 = write("one");
+    byte[] expected2 = write("two");
+    byte[] expected3 = write("three");
 
-        assertThat(reader.hasNext()).isTrue();
-        assertThat(reader.next())
-                .isPresent()
-                .hasValue(expected1);
+    assertThat(reader.hasNext()).isTrue();
+    assertThat(reader.next())
+        .isPresent()
+        .hasValue(expected1);
 
-        assertThat(reader.hasNext()).isTrue();
-        assertThat(reader.next())
-                .isPresent()
-                .hasValue(expected2);
+    assertThat(reader.hasNext()).isTrue();
+    assertThat(reader.next())
+        .isPresent()
+        .hasValue(expected2);
 
-        assertThat(reader.hasNext()).isTrue();
-        assertThat(reader.next())
-                .isPresent()
-                .hasValue(expected3);
-    }
+    assertThat(reader.hasNext()).isTrue();
+    assertThat(reader.next())
+        .isPresent()
+        .hasValue(expected3);
+  }
 
-    @Test
-    public void emptyRead () {
-        assertThat(reader.hasNext()).isFalse();
-        assertThat(reader.next()).isNotPresent();
-    }
+  @Test
+  void emptyRead () {
+    assertThat(reader.hasNext()).isFalse();
+    assertThat(reader.next()).isNotPresent();
+  }
 
-    @Test
-    public void position () {
-        assertThat(reader.position()).isEqualTo(0);
+  @Test
+  void position () {
+    assertThat(reader.position()).isEqualTo(0);
 
-        byte[] expected1 = write("Hello world");
-        byte[] expected2 = write("another record #1");
-        byte[] expected3 = write("another record #2");
+    byte[] expected1 = write("Hello world");
+    byte[] expected2 = write("another record #1");
+    byte[] expected3 = write("another record #2");
 
-        assertThat(reader.next())
-                .isPresent()
-                .hasValue(expected1);
+    assertThat(reader.next())
+        .isPresent()
+        .hasValue(expected1);
 
-        assertThat(reader.position())
-                .isEqualTo(Integer.BYTES + expected1.length);
+    assertThat(reader.position())
+        .isEqualTo(Integer.BYTES + expected1.length);
 
-        reader.position(reader.position() + Integer.BYTES + expected2.length);
+    reader.position(reader.position() + Integer.BYTES + expected2.length);
 
-        assertThat(reader.next())
-                .isPresent()
-                .hasValue(expected3);
-    }
+    assertThat(reader.next())
+        .isPresent()
+        .hasValue(expected3);
+  }
 
-    @Test
-    public void currentFileSize () {
-        assertThat(reader.currentFileSize()).isEqualTo(0);
+  @Test
+  void currentFileSize () {
+    assertThat(reader.currentFileSize()).isEqualTo(0);
 
-        int length = write("one").length + Integer.BYTES;
-        length += write("two").length + Integer.BYTES;
-        length += write("three").length + Integer.BYTES;
+    int length = write("one").length + Integer.BYTES;
+    length += write("two").length + Integer.BYTES;
+    length += write("three").length + Integer.BYTES;
 
-        assertThat(reader.currentFileSize()).isEqualTo(length);
-    }
+    assertThat(reader.currentFileSize()).isEqualTo(length);
+  }
 
-    protected abstract FileReader createFileReader (Path path);
+  protected abstract FileReader createFileReader (Path path);
 
-    @SneakyThrows
-    private byte[] write (String string) {
-        val bytes = string.getBytes();
-        val record = ByteBuffer.allocate(Integer.BYTES + bytes.length)
-                .putInt(bytes.length)
-                .put(bytes)
-                .array();
+  @SneakyThrows
+  private byte[] write (String string) {
+    val bytes = string.getBytes();
+    val record = ByteBuffer.allocate(Integer.BYTES + bytes.length)
+        .putInt(bytes.length)
+        .put(bytes)
+        .array();
 
-        Files.write(PATH, record, APPEND);
-        return bytes;
-    }
+    Files.write(PATH, record, APPEND);
+    return bytes;
+  }
 }

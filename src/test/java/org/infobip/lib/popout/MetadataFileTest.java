@@ -25,93 +25,94 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import lombok.experimental.FieldDefaults;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 @FieldDefaults(level = PRIVATE)
 public class MetadataFileTest {
 
-    private static final Path PATH = Paths.get("queue.metadata");
+  private static final Path PATH = Paths.get("queue.metadata");
 
-    MetadataFile metadata;
+  MetadataFile metadata;
 
-    @Before
-    public void before () throws IOException {
-        Files.deleteIfExists(PATH);
-        Files.createFile(PATH);
-        metadata = new MetadataFile(PATH);
-    }
+  @BeforeEach
+  void before () throws IOException {
+    Files.deleteIfExists(PATH);
+    Files.createFile(PATH);
+    metadata = new MetadataFile(PATH);
+  }
 
-    @After
-    public void after () throws IOException {
-        metadata = null;
-        Files.deleteIfExists(PATH);
-    }
+  @AfterEach
+  void after () throws IOException {
+    metadata = null;
+    Files.deleteIfExists(PATH);
+  }
 
-    @Test
-    public void empty () {
-        assertThat(metadata.getElements()).isEqualTo(0);
+  @Test
+  void empty () {
+    assertThat(metadata.getElements()).isEqualTo(0);
 
-        assertThat(metadata.getHead().getIndex()).isEqualTo(0);
-        assertThat(metadata.getHead().getOffset()).isEqualTo(0);
+    assertThat(metadata.getHead().getIndex()).isEqualTo(0);
+    assertThat(metadata.getHead().getOffset()).isEqualTo(0);
 
-        assertThat(metadata.getTail().getIndex()).isEqualTo(0);
-        assertThat(metadata.getTail().getOffset()).isEqualTo(0);
-    }
+    assertThat(metadata.getTail().getIndex()).isEqualTo(0);
+    assertThat(metadata.getTail().getOffset()).isEqualTo(0);
+  }
 
-    @Test
-    public void moveTail () {
-        metadata.moveTail(1, 42);
+  @Test
+  void moveTail () {
+    metadata.moveTail(1, 42);
 
-        assertThat(metadata.getTail().getIndex()).isEqualTo(1);
-        assertThat(metadata.getTail().getOffset()).isEqualTo(42);
+    assertThat(metadata.getTail().getIndex()).isEqualTo(1);
+    assertThat(metadata.getTail().getOffset()).isEqualTo(42);
 
-        assertThatExceptionOfType(IllegalArgumentException.class)
-                    .isThrownBy(() -> metadata.moveTail(-1, 0))
-                    .withMessage("New tail index -1 is lower than head's index (0)");
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> metadata.moveTail(-1, 0))
+        .withMessage("New tail index -1 is lower than head's index (0)");
 
-        assertThatExceptionOfType(IllegalArgumentException.class)
-                    .isThrownBy(() -> metadata.moveTail(0, -1))
-                    .withMessage("New tail offset -1 is lower than head's in the same index 0");
-    }
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> metadata.moveTail(0, -1))
+        .withMessage("New tail offset -1 is lower than head's in the same index 0");
+  }
 
-    @Test
-    public void moveHead () {
-        assertThatExceptionOfType(IllegalArgumentException.class)
-                    .isThrownBy(() -> metadata.moveHead(0, 0))
-                    .withMessage("Queue is empty");
+  @Test
+  void moveHead () {
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> metadata.moveHead(0, 0))
+        .withMessage("Queue is empty");
 
-        metadata.moveTail(1, 42);
+    metadata.moveTail(1, 42);
 
-        assertThatExceptionOfType(IllegalArgumentException.class)
-                    .isThrownBy(() -> metadata.moveHead(2, 0))
-                    .withMessage("New head index 2 is greater than tail's index (1)");
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> metadata.moveHead(2, 0))
+        .withMessage("New head index 2 is greater than tail's index (1)");
 
-        assertThatExceptionOfType(IllegalArgumentException.class)
-                    .isThrownBy(() -> metadata.moveHead(1, 43))
-                    .withMessage("New head offset 43 is greater than tail's in the same index 1");
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> metadata.moveHead(1, 43))
+        .withMessage("New head offset 43 is greater than tail's in the same index 1");
 
-        metadata.moveHead(1, 11);
+    metadata.moveHead(1, 11);
 
-        assertThat(metadata.getHead().getIndex()).isEqualTo(1);
-        assertThat(metadata.getHead().getOffset()).isEqualTo(11);
-    }
+    assertThat(metadata.getHead().getIndex()).isEqualTo(1);
+    assertThat(metadata.getHead().getOffset()).isEqualTo(11);
+  }
 
-    @Test
-    public void close () throws Exception {
-        metadata.moveTail(2, 42);
-        metadata.moveHead(1, 11);
-        metadata.close();
-        metadata = null;
+  @Test
+  void close () throws Exception {
+    metadata.moveTail(2, 42);
+    metadata.moveHead(1, 11);
+    metadata.close();
+    metadata = null;
 
-        metadata = new MetadataFile(PATH);
+    metadata = new MetadataFile(PATH);
 
-        assertThat(metadata.getHead().getIndex()).isEqualTo(1);
-        assertThat(metadata.getHead().getOffset()).isEqualTo(11);
+    assertThat(metadata.getHead().getIndex()).isEqualTo(1);
+    assertThat(metadata.getHead().getOffset()).isEqualTo(11);
 
-        assertThat(metadata.getTail().getIndex()).isEqualTo(2);
-        assertThat(metadata.getTail().getOffset()).isEqualTo(42);
-    }
+    assertThat(metadata.getTail().getIndex()).isEqualTo(2);
+    assertThat(metadata.getTail().getOffset()).isEqualTo(42);
+  }
 }

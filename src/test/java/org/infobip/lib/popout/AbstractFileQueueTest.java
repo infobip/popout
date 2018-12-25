@@ -18,111 +18,113 @@ package org.infobip.lib.popout;
 
 import static lombok.AccessLevel.PRIVATE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import lombok.experimental.FieldDefaults;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
 
 /**
  *
  * @author Artem Labazin
  */
-@Ignore
+// @Ignore
 @FieldDefaults(level = PRIVATE)
 abstract class AbstractFileQueueTest extends AbstractFolderBasedTest {
 
-    FileQueue<String> queue;
+  FileQueue<String> queue;
 
-    @Before
-    @Override
-    public void before () throws IOException {
-        super.before();
-        queue = createFileQueue(TEST_FOLDER, "batch-#.queue", 50);
-    }
+  @BeforeEach
+  @Override
+  public void before () throws IOException {
+    super.before();
+    queue = createFileQueue(TEST_FOLDER, "batch-#.queue", 50);
+  }
 
-    @After
-    @Override
-    public void after () throws IOException {
-        queue.close();
-        queue = null;
-        super.after();
-    }
+  @AfterEach
+  @Override
+  public void after () throws IOException {
+    queue.close();
+    queue = null;
+    super.after();
+  }
 
-    @Test(expected = NullPointerException.class)
-    public void addNull () {
-        queue.add(null);
-    }
+  @Test
+  void addNull () {
+    assertThatThrownBy(() -> queue.add(null))
+        .isInstanceOf(NullPointerException.class);
+  }
 
-    @Test
-    public void addSimple () {
-        queue.add("Hello");
-        queue.add("Hello");
-        queue.add("Hello");
+  @Test
+  void addSimple () {
+    queue.add("Hello");
+    queue.add("Hello");
+    queue.add("Hello");
 
-        assertThat(files()).containsExactly("batch-1.queue",
-                                            "queue.metadata");
-    }
+    assertThat(files()).containsExactly("batch-1.queue",
+                                        "queue.metadata");
+  }
 
-    @Test
-    public void addMany () throws InterruptedException {
-        queue.add("Hello");
-        queue.add("Hello");
-        queue.add("Hello");
-        queue.add("Hello");
-        queue.add("Hello");
-        queue.add("Hello");
-        queue.add("Hello");
-        queue.add("Hello");
-        queue.add("Hello");
+  @Test
+  void addMany () throws InterruptedException {
+    queue.add("Hello");
+    queue.add("Hello");
+    queue.add("Hello");
+    queue.add("Hello");
+    queue.add("Hello");
+    queue.add("Hello");
+    queue.add("Hello");
+    queue.add("Hello");
+    queue.add("Hello");
 
-        assertThat(files()).containsExactly("batch-1.queue",
-                                            "batch-2.queue",
-                                            "batch-3.queue",
-                                            "queue.metadata");
-    }
+    assertThat(files()).containsExactly("batch-1.queue",
+                                        "batch-2.queue",
+                                        "batch-3.queue",
+                                        "queue.metadata");
+  }
 
-    @Test
-    public void pollEmpty () {
-        assertThat(isFolderEmpty()).isFalse();
-        assertThat(queue.poll()).isNull();
-    }
+  @Test
+  void pollEmpty () {
+    assertThat(isFolderEmpty()).isFalse();
+    assertThat(queue.poll()).isNull();
+  }
 
-    @Test
-    public void pollOne () {
-        queue.add("Hello");
+  @Test
+  void pollOne () {
+    queue.add("Hello");
 
-        assertThat(isFolderEmpty()).isFalse();
+    assertThat(isFolderEmpty()).isFalse();
 
-        assertThat(queue.poll())
-                .isNotNull()
-                .isEqualTo("Hello");
-    }
+    assertThat(queue.poll())
+        .isNotNull()
+        .isEqualTo("Hello");
+  }
 
-    @Test
-    public void pollMany () throws InterruptedException {
-        queue.add("one");
-        queue.add("two");
-        queue.add("three");
+  @Test
+  void pollMany () throws InterruptedException {
+    queue.add("one");
+    queue.add("two");
+    queue.add("three");
 
-        assertThat(isFolderEmpty()).isFalse();
+    assertThat(isFolderEmpty()).isFalse();
 
-        assertThat(queue.poll())
-                .isNotNull()
-                .isEqualTo("one");
+    assertThat(queue.poll())
+        .isNotNull()
+        .isEqualTo("one");
 
-        assertThat(queue.poll())
-                .isNotNull()
-                .isEqualTo("two");
+    assertThat(queue.poll())
+        .isNotNull()
+        .isEqualTo("two");
 
-        assertThat(queue.poll())
-                .isNotNull()
-                .isEqualTo("three");
-    }
+    assertThat(queue.poll())
+        .isNotNull()
+        .isEqualTo("three");
+  }
 
-    protected abstract FileQueue<String> createFileQueue (Path folder, String filePattern, int maxFileSize);
+  protected abstract FileQueue<String> createFileQueue (Path folder, String filePattern, int maxFileSize);
 }

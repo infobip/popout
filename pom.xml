@@ -27,13 +27,13 @@ limitations under the License.
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
 
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
+    <java.version>${java.vm.specification.version}</java.version>
 
-    <maven.compiler.testTarget>1.8</maven.compiler.testTarget>
-    <maven.compiler.testSource>1.8</maven.compiler.testSource>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
 
-    <tests.jvm.arguments> </tests.jvm.arguments>
+    <maven.compiler.testTarget>${java.version}</maven.compiler.testTarget>
+    <maven.compiler.testSource>${java.version}</maven.compiler.testSource>
   </properties>
 
   <name>Popout</name>
@@ -96,14 +96,53 @@ limitations under the License.
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>1.16.20</version>
+      <version>1.18.4</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
-      <groupId>com.google.code.findbugs</groupId>
-      <artifactId>annotations</artifactId>
-      <version>3.0.1u2</version>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>5.3.2</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <version>5.3.2</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>3.11.1</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>2.23.4</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <version>2.23.4</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>net.jcip</groupId>
+      <artifactId>jcip-annotations</artifactId>
+      <version>1.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.spotbugs</groupId>
+      <artifactId>spotbugs-annotations</artifactId>
+      <version>3.1.10</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -112,36 +151,14 @@ limitations under the License.
       <version>3.0.2</version>
       <scope>provided</scope>
     </dependency>
-
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.12</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.assertj</groupId>
-      <artifactId>assertj-core</artifactId>
-      <version>3.9.0</version>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
-
-  <profiles>
-    <profile>
-      <id>jdk9</id>
-      <properties>
-        <tests.jvm.arguments>--add-exports java.base/jdk.internal.ref=ALL-UNNAMED</tests.jvm.arguments>
-      </properties>
-    </profile>
-  </profiles>
 
   <build>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.7.0</version>
+        <version>3.8.0</version>
         <configuration>
           <source>${maven.compiler.source}</source>
           <target>${maven.compiler.target}</target>
@@ -166,18 +183,49 @@ limitations under the License.
       </plugin>
 
       <plugin>
+        <groupId>pl.project13.maven</groupId>
+        <artifactId>git-commit-id-plugin</artifactId>
+        <version>2.2.5</version>
+        <executions>
+          <execution>
+            <id>git-infos</id>
+            <goals>
+              <goal>revision</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <runOnlyOnce>true</runOnlyOnce>
+          <failOnNoGitDirectory>false</failOnNoGitDirectory>
+          <generateGitPropertiesFile>true</generateGitPropertiesFile>
+          <verbose>false</verbose>
+          <prefix>git</prefix>
+          <generateGitPropertiesFilename>
+            ${project.build.outputDirectory}/git.properties
+          </generateGitPropertiesFilename>
+          <dateFormat>yyyy-MM-dd'T'HH:mm:ssZ</dateFormat>
+          <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+          <excludeProperties>
+            <excludeProperty>git.closest.tag.commit.count</excludeProperty>
+            <excludeProperty>git.closest.tag.name</excludeProperty>
+          </excludeProperties>
+        </configuration>
+      </plugin>
+
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.10.4</version>
+        <version>3.0.1</version>
         <configuration>
           <additionalOptions>-Xdoclint:none</additionalOptions>
+          <additionalparam>-Xdoclint:none</additionalparam>
           <breakiterator>true</breakiterator>
           <charset>${project.build.sourceEncoding}</charset>
           <docencoding>${project.build.sourceEncoding}</docencoding>
           <encoding>${project.build.sourceEncoding}</encoding>
           <failOnError>true</failOnError>
           <show>protected</show>
-          <source>${maven.compiler.source}</source>
+          <source>${java.version}</source>
           <version>true</version>
           <sourceFileIncludes>
             <include>org/infobip/lib/popout/FileQueue.java</include>
@@ -240,15 +288,21 @@ limitations under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.20.1</version>
+        <version>2.22.1</version>
         <configuration>
-          <argLine>${tests.jvm.arguments}</argLine>
           <runOrder>random</runOrder>
+          <trimStackTrace>false</trimStackTrace>
           <includes>
             <include>**/*Test.java</include>
+            <include>**/*Tests.java</include>
+            <include>**/Test*.java</include>
           </includes>
           <excludes>
+            <exclude>**/it/**</exclude>
             <exclude>**/*IntegrationTest.java</exclude>
+            <exclude>**/*IntegrationTests.java</exclude>
+            <exclude>**/*IT.java</exclude>
+            <exclude>**/IT*.java</exclude>
           </excludes>
         </configuration>
       </plugin>
@@ -256,14 +310,17 @@ limitations under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
-        <version>2.20.1</version>
+        <version>2.22.1</version>
         <configuration>
           <includes>
             <include>**/*IntegrationTest.java</include>
+            <include>**/*IntegrationTests.java</include>
+            <include>**/*IT.java</include>
+            <include>**/IT*.java</include>
+            <include>**/it/**/*Test.java</include>
+            <include>**/it/**/*Tests.java</include>
+            <include>**/it/**/Test*.java</include>
           </includes>
-          <excludes>
-            <exclude>**/*Test.java</exclude>
-          </excludes>
         </configuration>
         <executions>
           <execution>
@@ -277,9 +334,9 @@ limitations under the License.
       </plugin>
 
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>findbugs-maven-plugin</artifactId>
-        <version>3.0.5</version>
+        <groupId>com.github.spotbugs</groupId>
+        <artifactId>spotbugs-maven-plugin</artifactId>
+        <version>3.1.8</version>
         <configuration>
           <effort>Max</effort>
           <threshold>Low</threshold>
@@ -288,22 +345,25 @@ limitations under the License.
         </configuration>
         <executions>
           <execution>
-            <id>analyze-compile</id>
-            <phase>compile</phase>
+            <id>spotbugs-validation</id>
+            <phase>verify</phase>
             <goals>
               <goal>check</goal>
             </goals>
           </execution>
         </executions>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-pmd-plugin</artifactId>
-        <version>3.8</version>
+        <version>3.11.0</version>
         <configuration>
           <sourceEncoding>${project.build.sourceEncoding}</sourceEncoding>
           <targetJdk>${maven.compiler.source}</targetJdk>
-          <verbose>true</verbose>
+          <failOnViolation>true</failOnViolation>
+          <printFailingErrors>true</printFailingErrors>
+          <analysisCache>true</analysisCache>
           <linkXRef>false</linkXRef>
           <rulesets>
             <ruleset>${project.basedir}/.codestyle/pmd.xml</ruleset>
@@ -311,7 +371,8 @@ limitations under the License.
         </configuration>
         <executions>
           <execution>
-            <phase>package</phase>
+            <id>pmd-validation</id>
+            <phase>verify</phase>
             <goals>
               <goal>check</goal>
             </goals>
@@ -322,18 +383,18 @@ limitations under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>2.17</version>
+        <version>3.0.0</version>
         <dependencies>
           <dependency>
             <groupId>com.puppycrawl.tools</groupId>
             <artifactId>checkstyle</artifactId>
-            <version>8.7</version>
+            <version>8.15</version>
           </dependency>
         </dependencies>
         <executions>
           <execution>
-            <id>validate</id>
-            <phase>validate</phase>
+            <id>checkstyle-validation</id>
+            <phase>verify</phase>
             <goals>
               <goal>check</goal>
             </goals>
@@ -350,4 +411,41 @@ limitations under the License.
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>module-java</id>
+      <activation>
+        <jdk>[9,12)</jdk>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+              <release>${java.version}</release>
+            </configuration>
+          </plugin>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <argLine>
+                --add-exports java.base/jdk.internal.ref=ALL-UNNAMED
+                --illegal-access=permit
+              </argLine>
+            </configuration>
+          </plugin>
+          <plugin>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <configuration>
+              <argLine>
+                --add-exports java.base/jdk.internal.ref=ALL-UNNAMED
+                --illegal-access=permit
+              </argLine>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

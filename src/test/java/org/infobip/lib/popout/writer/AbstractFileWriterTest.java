@@ -20,6 +20,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.toList;
 import static lombok.AccessLevel.PRIVATE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -32,147 +33,147 @@ import java.util.stream.Stream;
 
 import lombok.experimental.FieldDefaults;
 import lombok.val;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  *
  * @author Artem Labazin
  */
-@Ignore
+// @Ignore
 @FieldDefaults(level = PRIVATE)
 abstract class AbstractFileWriterTest {
 
-    private static final Path PATH = Paths.get("popa.txt");
+  private static final Path PATH = Paths.get("popa.txt");
 
-    FileWriter writer;
+  FileWriter writer;
 
-    @Before
-    public void before () throws IOException {
-        Files.deleteIfExists(PATH);
-        Files.createFile(PATH);
-        writer = createFileWriter(PATH);
-    }
+  @BeforeEach
+  public void before () throws IOException {
+    Files.deleteIfExists(PATH);
+    Files.createFile(PATH);
+    writer = createFileWriter(PATH);
+  }
 
-    @After
-    public void after () throws IOException {
-        writer.close();
-        Files.deleteIfExists(PATH);
-    }
+  @AfterEach
+  public void after () throws IOException {
+    writer.close();
+    Files.deleteIfExists(PATH);
+  }
 
-    @Test(expected = NullPointerException.class)
-    public void writeNull () {
-        writer.write(null);
-    }
+  @Test
+  void writeNull () {
+    assertThatThrownBy(() -> writer.write(null))
+        .isInstanceOf(NullPointerException.class);
+  }
 
-    @Test
-    public void writeEmpty () throws IOException {
-        writer.write(new byte[0]);
-        writer.trim();
+  @Test
+  void writeEmpty () throws IOException {
+    writer.write(new byte[0]);
+    writer.trim();
 
-        assertThat(Files.readAllBytes(PATH))
-                .isEqualTo(ByteBuffer.allocate(Integer.BYTES)
-                        .putInt(0)
-                        .array());
+    assertThat(Files.readAllBytes(PATH))
+        .isEqualTo(ByteBuffer.allocate(Integer.BYTES)
+            .putInt(0)
+            .array());
 
-        assertThat(writer.position()).isEqualTo(Integer.BYTES);
-    }
+    assertThat(writer.position()).isEqualTo(Integer.BYTES);
+  }
 
-    @Test
-    public void simpleWrite () throws IOException {
-        val bytes = "Hello world".getBytes(UTF_8);
-        val expected = ByteBuffer.allocate(Integer.BYTES + bytes.length)
-                .putInt(bytes.length)
-                .put(bytes)
-                .array();
+  @Test
+  void simpleWrite () throws IOException {
+    val bytes = "Hello world".getBytes(UTF_8);
+    val expected = ByteBuffer.allocate(Integer.BYTES + bytes.length)
+        .putInt(bytes.length)
+        .put(bytes)
+        .array();
 
-        writer.write(bytes);
-        writer.trim();
+    writer.write(bytes);
+    writer.trim();
 
-        assertThat(Files.readAllBytes(PATH))
-                .isEqualTo(expected);
-    }
+    assertThat(Files.readAllBytes(PATH))
+        .isEqualTo(expected);
+  }
 
-    @Test
-    public void multipleWrites () throws IOException {
-        List<byte[]> records = toBytes("one", "two", "three");
-        val expected = toRecordsBytes(records);
+  @Test
+  void multipleWrites () throws IOException {
+    List<byte[]> records = toBytes("one", "two", "three");
+    val expected = toRecordsBytes(records);
 
-        records.forEach(writer::write);
-        writer.trim();
+    records.forEach(writer::write);
+    writer.trim();
 
-        assertThat(Files.readAllBytes(PATH))
-                .isEqualTo(expected);
-    }
+    assertThat(Files.readAllBytes(PATH))
+        .isEqualTo(expected);
+  }
 
-    @Test
-    public void position () throws IOException {
-        assertThat(writer.position()).isEqualTo(0);
+  @Test
+  void position () throws IOException {
+    assertThat(writer.position()).isEqualTo(0);
 
-        List<byte[]> records = toBytes("one", "two", "three");
-        val expected = toRecordsBytes(records);
+    List<byte[]> records = toBytes("one", "two", "three");
+    val expected = toRecordsBytes(records);
 
-        records.forEach(writer::write);
+    records.forEach(writer::write);
 
-        assertThat(writer.position()).isEqualTo(expected.length);
-        writer.position(Integer.BYTES + records.get(0).length);
+    assertThat(writer.position()).isEqualTo(expected.length);
+    writer.position(Integer.BYTES + records.get(0).length);
 
-        writer.write("one".getBytes(UTF_8));
-        writer.trim();
+    writer.write("one".getBytes(UTF_8));
+    writer.trim();
 
-        assertThat(Files.readAllBytes(PATH))
-                .isEqualTo(toRecordsBytes("one", "one", "three"));
-    }
+    assertThat(Files.readAllBytes(PATH))
+        .isEqualTo(toRecordsBytes("one", "one", "three"));
+  }
 
-    @Test
-    public void currentFileSize () throws IOException {
-        assertThat(writer.currentFileSize()).isEqualTo(0);
+  @Test
+  void currentFileSize () throws IOException {
+    assertThat(writer.currentFileSize()).isEqualTo(0);
 
-        List<byte[]> records = toBytes("one", "two", "three");
-        val expected = toRecordsBytes(records);
+    List<byte[]> records = toBytes("one", "two", "three");
+    val expected = toRecordsBytes(records);
 
-        records.forEach(writer::write);
-        writer.trim();
+    records.forEach(writer::write);
+    writer.trim();
 
-        assertThat(writer.currentFileSize()).isEqualTo(expected.length);
-    }
+    assertThat(writer.currentFileSize()).isEqualTo(expected.length);
+  }
 
-    protected abstract FileWriter createFileWriter (Path path);
+  protected abstract FileWriter createFileWriter (Path path);
 
-    private List<byte[]> toBytes (String... records) {
-        return Stream.of(records)
-                .map(it -> it.getBytes(UTF_8))
-                .collect(toList());
-    }
+  private List<byte[]> toBytes (String... records) {
+    return Stream.of(records)
+        .map(it -> it.getBytes(UTF_8))
+        .collect(toList());
+  }
 
-    private byte[] toRecordsBytes (List<byte[]> records) {
-        return records.stream()
-                .map(it -> ByteBuffer.allocate(Integer.BYTES + it.length)
-                        .putInt(it.length)
-                        .put(it)
-                        .array()
-                )
-                .reduce(new byte[0], (a, b) -> {
-                    byte[] result = Arrays.copyOf(a, a.length + b.length);
-                    System.arraycopy(b, 0, result, a.length, b.length);
-                    return result;
-                });
-    }
+  private byte[] toRecordsBytes (List<byte[]> records) {
+    return records.stream()
+        .map(it -> ByteBuffer.allocate(Integer.BYTES + it.length)
+            .putInt(it.length)
+            .put(it)
+            .array()
+        )
+        .reduce(new byte[0], (a, b) -> {
+            byte[] result = Arrays.copyOf(a, a.length + b.length);
+            System.arraycopy(b, 0, result, a.length, b.length);
+            return result;
+        });
+  }
 
-    private byte[] toRecordsBytes (String... records) {
-        return Stream.of(records)
-                .map(it -> it.getBytes(UTF_8))
-                .map(it -> ByteBuffer.allocate(Integer.BYTES + it.length)
-                        .putInt(it.length)
-                        .put(it)
-                        .array()
-                )
-                .reduce(new byte[0], (a, b) -> {
-                    byte[] result = Arrays.copyOf(a, a.length + b.length);
-                    System.arraycopy(b, 0, result, a.length, b.length);
-                    return result;
-                });
-    }
+  private byte[] toRecordsBytes (String... records) {
+    return Stream.of(records)
+        .map(it -> it.getBytes(UTF_8))
+        .map(it -> ByteBuffer.allocate(Integer.BYTES + it.length)
+            .putInt(it.length)
+            .put(it)
+            .array()
+        )
+        .reduce(new byte[0], (a, b) -> {
+            byte[] result = Arrays.copyOf(a, a.length + b.length);
+            System.arraycopy(b, 0, result, a.length, b.length);
+            return result;
+        });
+  }
 }
