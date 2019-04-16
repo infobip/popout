@@ -16,14 +16,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-<FindBugsFilter>
-  <Match>
-    <Bug pattern="JLM_JSR166_UTILCONCURRENT_MONITORENTER"/>
-  </Match>
-  <Match>
-    <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"/>
-  </Match>
-  <Match>
-    <Bug pattern="BC_UNCONFIRMED_CAST"/>
-  </Match>
-</FindBugsFilter>
+<configuration>
+  <include resource="io/appulse/logging/logback/base.xml"/>
+
+  <logger name="org.testcontainers" level="INFO"/>
+</configuration>

@@ -4,7 +4,7 @@
           "http://checkstyle.sourceforge.net/dtds/configuration_1_3.dtd">
 
 <!--
-Copyright 2018 Infobip Ltd.
+Copyright 2019 Infobip Ltd.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -170,7 +170,7 @@ limitations under the License.
       <property name="separateLineBetweenGroups" value="true"/>
       <property name="customImportOrderRules"
                 value="STATIC###STANDARD_JAVA_PACKAGE###SPECIAL_IMPORTS###THIRD_PARTY_PACKAGE"/>
-      <property name="specialImportsRegExp" value="^io\.appulse"/>
+      <property name="specialImportsRegExp" value="^org\.infobip"/>
     </module>
     <module name="IllegalImport"/> <!-- defaults to sun.* packages -->
     <module name="RedundantImport"/>
@@ -382,7 +382,6 @@ limitations under the License.
       <property name="forceStrictCondition" value="false"/>
     </module>
     <module name="OuterTypeFilename"/>
-    <module name="TodoComment"/>
     <module name="UncommentedMain">
       <property name="excludedClasses" value="\.Main$"/>
     </module>

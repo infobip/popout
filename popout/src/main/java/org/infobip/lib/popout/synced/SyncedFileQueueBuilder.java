@@ -13,3 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package org.infobip.lib.popout.synced;
+
+import static lombok.AccessLevel.PRIVATE;
+
+import org.infobip.lib.popout.FileQueue;
+
+import lombok.Getter;
+import lombok.experimental.FieldDefaults;
+
+/**
+ * The specific builder object for a synced queue instance.
+ *
+ * @param <T> the type of elements in this queue
+ *
+ * @author Artem Labazin
+ * @since 2.0.0
+ */
+@Getter
+@FieldDefaults(level = PRIVATE)
+public class SyncedFileQueueBuilder<T> extends FileQueue.Builder<SyncedFileQueueBuilder<T>, T> {
+
+  @Override
+  protected FileQueue<T> createQueue () {
+    return new SyncedFileQueue<>(this);
+  }
+}

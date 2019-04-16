@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-Copyright 2018 Infobip Ltd.
+Copyright 2019 Infobip Ltd.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -68,8 +68,8 @@ limitations under the License.
     <exclude name="CommentRequired" />
   </rule>
   <rule ref="category/java/errorprone.xml">
-    <exclude name="AvoidFieldNameMatchingMethodName" />
     <exclude name="AvoidFieldNameMatchingTypeName" />
+    <exclude name="AvoidFieldNameMatchingMethodName" />
     <exclude name="BeanMembersShouldSerialize" />
     <exclude name="DataflowAnomalyAnalysis" />
     <exclude name="DontImportSun" />

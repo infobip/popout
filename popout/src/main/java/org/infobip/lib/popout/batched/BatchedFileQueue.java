@@ -1,0 +1,300 @@
+/*
+ * Copyright 2019 Infobip Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.infobip.lib.popout.batched;
+
+import static lombok.AccessLevel.PRIVATE;
+
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.concurrent.atomic.LongAdder;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Function;
+
+import org.infobip.lib.popout.FileQueue;
+import org.infobip.lib.popout.QueueLimit;
+import org.infobip.lib.popout.ReadWriteBytesPool;
+import org.infobip.lib.popout.backend.FileSystemBackend;
+import org.infobip.lib.popout.backend.WalContent;
+
+import io.appulse.utils.LimitedQueue;
+import lombok.NonNull;
+import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
+import lombok.val;
+
+@FieldDefaults(level = PRIVATE, makeFinal = true)
+class BatchedFileQueue<T> extends FileQueue<T> {
+
+  LongAdder size;
+
+  @NonFinal
+  Queue<T> tail;
+
+  FileSystemBackend backend;
+
+  @NonFinal
+  Queue<T> head;
+
+  QueueSerializer<T> queueSerializer;
+
+  QueueLimit<T> limit;
+
+  Backup<T> backup;
+
+  Lock writeLock;
+
+  Lock readLock;
+
+  BatchedFileQueue (@NonNull BatchedFileQueueBuilder<T> builder) {
+    super();
+
+    backend = FileSystemBackend.builder()
+        .queueName(builder.getName())
+        .walConfig(builder.getWalFilesConfig())
+        .compressedConfig(builder.getCompressedFilesConfig())
+        .restoreFromDisk(builder.isRestoreFromDisk())
+        .build();
+
+    queueSerializer = QueueSerializer.<T>builder()
+        .serializer(builder.getSerializer())
+        .deserializer(builder.getDeserializer())
+        .build();
+
+    backup = Backup.<T>builder()
+        .queueName(builder.getName())
+        .folder(builder.getCompressedFilesConfig().getFolder())
+        .build();
+
+    size = new LongAdder();
+
+    head = new LinkedList<>();
+    if (backup.hasHead()) {
+      val queue = ReadWriteBytesPool.getInstance().borrow(buffer -> {
+        return backup.restoreHead(buffer) > 0
+               ? queueSerializer.deserialize(buffer)
+               : null;
+      });
+      queue.forEach(head::offer);
+      size.add(head.size());
+    }
+
+    tail = new LimitedQueue<>(builder.getWalElements());
+    if (backup.hasTail()) {
+      val queue = ReadWriteBytesPool.getInstance().borrow(buffer -> {
+        return backup.restoreTail(buffer) > 0
+               ? queueSerializer.deserialize(buffer)
+               : null;
+      });
+      queue.forEach(tail::offer);
+      size.add(tail.size());
+    }
+
+    val iterator = backend.iterator();
+    while (iterator.hasNext()) {
+      val walContent = iterator.next();
+      val length = queueSerializer.getQueueLength(walContent);
+      size.add(length);
+    }
+
+    limit = builder.getLimit();
+    writeLock = new ReentrantLock(true);
+    readLock = new ReentrantLock(true);
+  }
+
+  @Override
+  public boolean offer (@NonNull T value) {
+    if (limit.isExceeded(this)) {
+      limit.handle(value, this);
+      return false;
+    }
+
+    writeLock.lock();
+    try {
+      if (tail.offer(value)) {
+        size.increment();
+        return true;
+      }
+
+      ReadWriteBytesPool.getInstance().borrow(buffer -> {
+        queueSerializer.serialize(tail, buffer);
+        backend.write(buffer);
+        return null;
+      });
+
+      tail = new LimitedQueue<>(tail.size());
+      tail.add(value);
+      size.increment();
+    } finally {
+      writeLock.unlock();
+    }
+    return true;
+  }
+
+  @Override
+  public T poll () {
+    val result = doOn(Queue::poll);
+    if (result != null) {
+      size.decrement();
+    }
+    return result;
+  }
+
+  @Override
+  public T peek () {
+    return doOn(Queue::peek);
+  }
+
+  @Override
+  public int size () {
+    return size.intValue();
+  }
+
+  @Override
+  public long longSize () {
+    return size.longValue();
+  }
+
+  @Override
+  public long diskSize () {
+    return backend.diskSize();
+  }
+
+  @Override
+  public void flush () {
+    writeLock.lock();
+    readLock.lock();
+    try {
+      if (!tail.isEmpty()) {
+        ReadWriteBytesPool.getInstance().borrow(buffer -> {
+          queueSerializer.serialize(tail, buffer);
+          backup.backupTail(buffer);
+          return null;
+        });
+      }
+      if (!head.isEmpty()) {
+        ReadWriteBytesPool.getInstance().borrow(buffer -> {
+          queueSerializer.serialize(head, buffer);
+          backup.backupHead(buffer);
+          return null;
+        });
+      }
+    } finally {
+      readLock.unlock();
+      writeLock.unlock();
+    }
+  }
+
+  @Override
+  public Iterator<T> iterator () {
+    return new BatchedFileQueueIterator();
+  }
+
+  @Override
+  public void close () {
+    flush();
+  }
+
+  private T doOn (Function<Queue<T>, T> extractor) {
+    readLock.lock();
+    try {
+      T result = extractor.apply(head);
+      if (result != null) {
+        return result;
+      }
+
+      writeLock.lock();
+      try {
+        return ReadWriteBytesPool.getInstance().borrow(buffer -> {
+          if (backend.pollTo(buffer) <= 0) {
+            return extractor.apply(tail);
+          }
+          head = queueSerializer.deserialize(buffer);
+          return extractor.apply(head);
+        });
+      } finally {
+        writeLock.unlock();
+      }
+    } finally {
+      readLock.unlock();
+    }
+  }
+
+  private class BatchedFileQueueIterator implements Iterator<T> {
+
+    Iterator<T> current = head.iterator();
+
+    Iterator<T> backendIterator = new BackendIterator();
+
+    Iterator<T> tailIterator = tail.iterator();
+
+    @Override
+    public boolean hasNext () {
+      if (current.hasNext()) {
+        return true;
+      } else if (backendIterator.hasNext()) {
+        current = backendIterator;
+        return true;
+      } else if (tailIterator.hasNext()) {
+        current = tailIterator;
+        return true;
+      }
+      return false;
+    }
+
+    @Override
+    public T next () {
+      return current.next();
+    }
+
+    @Override
+    public void remove () {
+      current.remove();
+      size.decrement();
+    }
+  }
+
+  private class BackendIterator implements Iterator<T> {
+
+    Iterator<WalContent> walContentsIterator = backend.iterator();
+
+    Iterator<T> elements;
+
+    @Override
+    public boolean hasNext () {
+      if (elements == null || !elements.hasNext()) {
+        if (!walContentsIterator.hasNext()) {
+          return false;
+        }
+        val walContent = walContentsIterator.next();
+        elements = queueSerializer.toIterator(walContent);
+      }
+      return elements.hasNext();
+    }
+
+    @Override
+    public T next () {
+      return elements.next();
+    }
+
+    @Override
+    public void remove () {
+      elements.remove();
+    }
+  }
+}
