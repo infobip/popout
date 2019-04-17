@@ -103,7 +103,7 @@ public abstract class FileQueue<T> extends AbstractQueue<T> implements AutoClose
    * @param <T> the type of elements in this builded queues
    *
    * @author Artem Labazin
-   * @since 2.0.0
+   * @since 2.0.1
    */
   @Getter
   @SuppressWarnings({

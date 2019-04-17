@@ -13,7 +13,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Add batch write/read (using FileChannel) with customizable batch size;
 - Add concurrent access to queue (methods with `synchronized` keyword or based on locks).
 
-## [1.1.0](https://github.com/infobip/popout/releases/tag/1.0.0) - 2018-01-23
+## [2.0.1](https://github.com/infobip/popout/releases/tag/2.0.1) - 2019-04-17
+
+### Added
+
+- `Batched` and `synced` file queue implementations.
+
+### Removed
+
+- Working with mmap-files.
+
+## [1.1.0](https://github.com/infobip/popout/releases/tag/1.1.0) - 2018-01-23
 
 Minor update with set of small fixes and Java 9 support.
 

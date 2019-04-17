@@ -29,7 +29,7 @@ import lombok.experimental.FieldDefaults;
  * @param <T> the type of elements in this queue
  *
  * @author Artem Labazin
- * @since 2.0.0
+ * @since 2.0.1
  */
 @Getter
 @FieldDefaults(level = PRIVATE)

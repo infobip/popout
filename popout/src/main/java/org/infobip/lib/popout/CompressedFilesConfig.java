@@ -28,7 +28,7 @@ import lombok.experimental.Wither;
  * The compression files configuration object.
  *
  * @author Artem Labazin
- * @since 2.0.0
+ * @since 2.0.1
  */
 @Value
 @Wither

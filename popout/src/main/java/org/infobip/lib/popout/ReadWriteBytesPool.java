@@ -27,7 +27,7 @@ import lombok.val;
 /**
  * Singleton pool for read/write bytes buffers.
  *
- * @since 2.0.0
+ * @since 2.0.1
  * @author Artem Labazin
  */
 @FieldDefaults(level = PRIVATE, makeFinal = true)
