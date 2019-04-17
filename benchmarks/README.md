@@ -25,23 +25,29 @@ This benchamark show us a comparative write operations with different threads nu
 
 | Benchmark                                                                                | Threads | Mode  | Score       |      Error | Units |
 |:-----------------------------------------------------------------------------------------|:-------:|:-----:|------------:|-----------:|:------|
-| [Batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedWriteBenchmarks.java) |    1    | thrpt |  416493.732 |  48490.629 | ops/s |
-| [Batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedWriteBenchmarks.java) |    2    | thrpt |  431726.683 |  38066.841 | ops/s |
-| [Batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedWriteBenchmarks.java) |    8    | thrpt |  201545.938 |   9202.873 | ops/s |
-| [Synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedWriteBenchmarks.java)   |    1    | thrpt |    9142.644 |    631.290 | ops/s |
-| [Synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedWriteBenchmarks.java)   |    2    | thrpt |    9130.862 |    110.159 | ops/s |
-| [Synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedWriteBenchmarks.java)   |    8    | thrpt |    8758.429 |    856.279 | ops/s |
+| [Batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedWriteBenchmarks.java) |    1    | thrpt |  483900.090 |  12183.906 | ops/s |
+| [Batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedWriteBenchmarks.java) |    2    | thrpt |  476730.573 |  27742.989 | ops/s |
+| [Batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedWriteBenchmarks.java) |    8    | thrpt |  230877.465 |   7111.418 | ops/s |
+| [Synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedWriteBenchmarks.java)   |    1    | thrpt |   12575.638 |    606.869 | ops/s |
+| [Synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedWriteBenchmarks.java)   |    2    | thrpt |   12117.054 |    449.219 | ops/s |
+| [Synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedWriteBenchmarks.java)   |    8    | thrpt |   11827.501 |   1100.236 | ops/s |
+| [tape](./src/main/java/org/infobip/lib/popout/benchmarks/TapeWriteBenchmarks2.java)      |    1    | thrpt |    1716.828 |    120.102 | ops/s |
+| [tape](./src/main/java/org/infobip/lib/popout/benchmarks/TapeWriteBenchmarks2.java)      |    2    | thrpt |    1737.029 |     99.037 | ops/s |
+| [tape](./src/main/java/org/infobip/lib/popout/benchmarks/TapeWriteBenchmarks2.java)      |    8    | thrpt |    1730.007 |     80.156 | ops/s |
 
 **HDD** slow VPS machine:
 
-| Benchmark                                                                                | Threads | Mode  | Score       | Error      | Units |
-|:-----------------------------------------------------------------------------------------|:-------:|:-----:|------------:|-----------:|:------|
-| [Batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedWriteBenchmarks.java) |    1    | thrpt |  339326.888 |  30363.049 | ops/s |
-| [Batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedWriteBenchmarks.java) |    2    | thrpt |  334198.205 |  18257.508 | ops/s |
-| [Batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedWriteBenchmarks.java) |    8    | thrpt |   82094.633 |   5595.660 | ops/s |
-| [Synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedWriteBenchmarks.java)   |    1    | thrpt |    4032.630 |    361.506 | ops/s |
-| [Synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedWriteBenchmarks.java)   |    2    | thrpt |    3973.133 |    270.485 | ops/s |
-| [Synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedWriteBenchmarks.java)   |    8    | thrpt |    3912.688 |    388.949 | ops/s |
+| Benchmark                                                                                | Threads | Mode  | Score      | Error     | Units |
+|:-----------------------------------------------------------------------------------------|:-------:|:-----:|-----------:|----------:|:------|
+| [batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedWriteBenchmarks.java) |    1    | thrpt | 340561.607 | 10061.559 | ops/s |
+| [batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedWriteBenchmarks.java) |    2    | thrpt | 335203.438 | 17237.922 | ops/s |
+| [batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedWriteBenchmarks.java) |    8    | thrpt |  82027.788 |  4933.303 | ops/s |
+| [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedWriteBenchmarks.java)   |    1    | thrpt |   4055.127 |   242.564 | ops/s |
+| [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedWriteBenchmarks.java)   |    2    | thrpt |   3898.890 |   327.030 | ops/s |
+| [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedWriteBenchmarks.java)   |    8    | thrpt |   3984.240 |   186.945 | ops/s |
+| [tape](./src/main/java/org/infobip/lib/popout/benchmarks/TapeWriteBenchmarks2.java)      |    1    | thrpt |    627.227 |    45.789 | ops/s |
+| [tape](./src/main/java/org/infobip/lib/popout/benchmarks/TapeWriteBenchmarks2.java)      |    2    | thrpt |    624.004 |    47.643 | ops/s |
+| [tape](./src/main/java/org/infobip/lib/popout/benchmarks/TapeWriteBenchmarks2.java)      |    8    | thrpt |    628.569 |    18.652 | ops/s |
 
 ### Iteration over queue from disk
 
@@ -55,19 +61,23 @@ This benchamark show us a comparative write operations with different threads nu
 
 Here we tests the queue's iterators from different implementations. Preliminarily, we writes **one milliom** records of 512 bytes length data to disk, then iterates it via `batched`/`synced` iterators.
 
+> **NOTICE:** `tape` is not present here, because its initialization (writing 1_000_000 records) takes too much time (almost 30 minutes) and `JMH` interupts it...
+
 **SSD** `DigitalOcean` droplet:
 
 | Benchmark                                                                                   | Mode | Score  | Error | Units |
 |:--------------------------------------------------------------------------------------------|:----:|-------:|------:|:------|
-| [batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedIteratorBenchmarks.java) |  ss  |  7.947 | 0.409 |  s/op |
-| [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedIteratorBenchmarks.java)   |  ss  | 76.041 | 2.770 |  s/op |
+| [batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedIteratorBenchmarks.java) |  ss  |  6.549 | 0.459 |  s/op |
+| [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedIteratorBenchmarks.java)   |  ss  | 63.947 | 5.072 |  s/op |
+| [tape](./src/main/java/org/infobip/lib/popout/benchmarks/TapeIteratorBenchmarks.java)       |  ss  |    -    |    -   |  s/op |
 
 **HDD** slow VPS machine:
 
 | Benchmark                                                                                   | Mode | Score   | Error  | Units |
 |:--------------------------------------------------------------------------------------------|:----:|--------:|-------:|:------|
-| [batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedIteratorBenchmarks.java) |  ss  |  31.665 |  0.707 |  s/op |
-| [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedIteratorBenchmarks.java)   |  ss  | 113.947 |  4.446 |  s/op |
+| [batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedIteratorBenchmarks.java) |  ss  |  32.548 |  3.361 |  s/op |
+| [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedIteratorBenchmarks.java)   |  ss  | 115.348 |  3.037 |  s/op |
+| [tape](./src/main/java/org/infobip/lib/popout/benchmarks/TapeIteratorBenchmarks.java)       |  ss  |    -    |    -   |  s/op |
 
 ### Simultaneous read/write operations
 
@@ -84,25 +94,35 @@ In this test we have simultaneous write and read operations. There 3 threads to 
 
 **SSD** `DigitalOcean` droplet:
 
+> **NOTICE:** `tape` has a "good" score, because of fast reads (around **30000**)...but it is rash reads of `NULL`s. Take a look at the write score - nearly **1600**, so the queue is almost always empty.
+
 | Benchmark                                                                                    | Description   | Mode  | Score       | Error     | Units |
 |:---------------------------------------------------------------------------------------------|:-------------:|:-----:|------------:|----------:|:------|
-| [batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedReadWriteBenchmarks.java) | write + read  | thrpt |  356000.071 | 10689.895 | ops/s |
-| [batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedReadWriteBenchmarks.java) |     read      | thrpt |  177964.106 |  5317.090 | ops/s |
-| [batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedReadWriteBenchmarks.java) |     write     | thrpt |  178035.966 |  5376.288 | ops/s |
-| [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedReadWriteBenchmarks.java)   | write + read  | thrpt |   14696.753 |  1108.438 | ops/s |
-| [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedReadWriteBenchmarks.java)   |     read      | thrpt |    7347.880 |   579.236 | ops/s |
-| [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedReadWriteBenchmarks.java)   |     write     | thrpt |    7348.873 |   532.571 | ops/s |
+| [batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedReadWriteBenchmarks.java) | write + read  | thrpt |  429808.465 | 21900.206 | ops/s |
+| [batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedReadWriteBenchmarks.java) |     read      | thrpt |  214922.413 | 10854.872 | ops/s |
+| [batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedReadWriteBenchmarks.java) |     write     | thrpt |  214886.052 | 11046.534 | ops/s |
+| [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedReadWriteBenchmarks.java)   | write + read  | thrpt |   19979.111 |  1813.331 | ops/s |
+| [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedReadWriteBenchmarks.java)   |     read      | thrpt |    9979.437 |   906.492 | ops/s |
+| [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedReadWriteBenchmarks.java)   |     write     | thrpt |    9992.674 |   906.847 | ops/s |
+| [tape](./src/main/java/org/infobip/lib/popout/benchmarks/TapeReadWriteBenchmarks.java)       | write + read  | thrpt |   32328.193 |  1500.906 | ops/s |
+| [tape](./src/main/java/org/infobip/lib/popout/benchmarks/TapeReadWriteBenchmarks.java)       |     read      | thrpt |   30704.119 |  1413.401 | ops/s |
+| [tape](./src/main/java/org/infobip/lib/popout/benchmarks/TapeReadWriteBenchmarks.java)       |     write     | thrpt |    1624.075 |    97.712 | ops/s |
 
 **HDD** slow VPS machine:
 
+> **NOTICE:** `tape` has a "good" score, because of fast reads (around **6500**)...but it is rash reads of `NULL`s. Take a look at the write score - nearly **600**, so the queue is almost always empty.
+
 | Benchmark                                                                                    | Description   | Mode  | Score       | Error     | Units |
 |:---------------------------------------------------------------------------------------------|:-------------:|:-----:|------ -----:|----------:|:------|
-| [batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedReadWriteBenchmarks.java) | write + read  | thrpt |  129047.209 |   7322.019 | ops/s |
-| [batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedReadWriteBenchmarks.java) |     read      | thrpt |   64560.194 |   3678.515 | ops/s |
-| [batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedReadWriteBenchmarks.java) |     write     | thrpt |   64487.015 |   3644.530 | ops/s |
-| [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedReadWriteBenchmarks.java)   | write + read  | thrpt |    6671.062 |    550.223 | ops/s |
-| [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedReadWriteBenchmarks.java)   |     read      | thrpt |    3332.767 |    290.337 | ops/s |
-| [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedReadWriteBenchmarks.java)   |     write     | thrpt |    3338.295 |    262.319 | ops/s |
+| [batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedReadWriteBenchmarks.java) | write + read  | thrpt |  125998.278 | 11024.132 | ops/s |
+| [batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedReadWriteBenchmarks.java) |     read      | thrpt |   63031.627 |  5524.542 | ops/s |
+| [batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedReadWriteBenchmarks.java) |     write     | thrpt |   62966.651 |  5500.945 | ops/s |
+| [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedReadWriteBenchmarks.java)   | write + read  | thrpt |    6597.817 |   381.055 | ops/s |
+| [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedReadWriteBenchmarks.java)   |     read      | thrpt |    3305.614 |   155.694 | ops/s |
+| [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedReadWriteBenchmarks.java)   |     write     | thrpt |    3292.204 |   250.553 | ops/s |
+| [tape](./src/main/java/org/infobip/lib/popout/benchmarks/TapeReadWriteBenchmarks.java)       | write + read  | thrpt |    7104.478 |   785.961 | ops/s |
+| [tape](./src/main/java/org/infobip/lib/popout/benchmarks/TapeReadWriteBenchmarks.java)       |     read      | thrpt |    6511.880 |   755.388 | ops/s |
+| [tape](./src/main/java/org/infobip/lib/popout/benchmarks/TapeReadWriteBenchmarks.java)       |     write     | thrpt |     592.598 |    33.931 | ops/s |
 
 ## How to setup the environment
 

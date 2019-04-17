@@ -16,10 +16,10 @@
 
 package org.infobip.lib.popout.benchmarks;
 
-import static org.openjdk.jmh.annotations.Mode.SingleShotTime;
+import static org.openjdk.jmh.annotations.Mode.Throughput;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static io.appulse.utils.SizeUnit.MEGABYTES;
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.Comparator.reverseOrder;
 import static org.openjdk.jmh.annotations.Level.Iteration;
 import static org.openjdk.jmh.annotations.Scope.Benchmark;
@@ -28,15 +28,9 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Queue;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.infobip.lib.popout.CompressedFilesConfig;
-import org.infobip.lib.popout.Deserializer;
-import org.infobip.lib.popout.FileQueue;
-import org.infobip.lib.popout.QueueLimit;
-import org.infobip.lib.popout.Serializer;
-import org.infobip.lib.popout.WalFilesConfig;
+import com.squareup.tape2.QueueFile;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -45,69 +39,52 @@ import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
+import org.openjdk.jmh.annotations.Threads;
 import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.infra.Blackhole;
-
+import org.openjdk.jmh.infra.ThreadParams;
 import lombok.SneakyThrows;
 import lombok.val;
 
 @Fork(2)
 @State(Benchmark)
 @OutputTimeUnit(SECONDS)
-@Warmup(iterations = 1)
-@Measurement(iterations = 3)
-@BenchmarkMode(SingleShotTime)
-public class BatchedIteratorBenchmarks {
+@BenchmarkMode(Throughput)
+@Warmup(iterations = 1, time = 1, timeUnit = MINUTES)
+@Measurement(iterations = 3, time = 1, timeUnit = MINUTES)
+public class TapeWriteBenchmarks {
 
-  private static final Path FOLDER = Paths.get("./batched_benchmarks");
+  private static final Path QUEUE_FILE = Paths.get("./tape_benchmarks/queue");
 
-  Queue<byte[]> queue;
+  QueueFile queue;
+
+  byte[] payload;
 
   @Benchmark
-  public void iterate (Blackhole blackhole) {
-    val iterator = queue.iterator();
-    while (iterator.hasNext()) {
-      val item = iterator.next();
-      blackhole.consume(item);
-    }
+  @Threads(1)
+  @SneakyThrows
+  public void write_threads_1 (ThreadParams threadParams, Blackhole blackhole) {
+    queue.add(payload);
   }
 
   @Setup(Iteration)
   @SneakyThrows
   public void setup () {
-    deleteFolder(FOLDER);
-    Files.createDirectories(FOLDER);
+    deleteFolder(QUEUE_FILE);
+    Files.createDirectories(QUEUE_FILE.getParent());
 
-    queue = FileQueue.<byte[]>batched()
-        .name("batched-iterator")
-        .folder(FOLDER)
-        .serializer(Serializer.BYTE_ARRAY)
-        .deserializer(Deserializer.BYTE_ARRAY)
-        .limit(QueueLimit.noLimit())
-        .restoreFromDisk(false)
-        .wal(WalFilesConfig.builder()
-            .folder(FOLDER)
-            .maxCount(1000)
-            .build())
-        .compressed(CompressedFilesConfig.builder()
-            .folder(FOLDER)
-            .maxSizeBytes(MEGABYTES.toBytes(256))
-            .build())
-        .batchSize(1000)
+    queue = new QueueFile
+        .Builder(QUEUE_FILE.toFile())
         .build();
 
-    val payload = new byte[512];
+    payload = new byte[512];
     ThreadLocalRandom.current().nextBytes(payload);
-
-    for (int i = 0; i < 1_000_000; i++) {
-      queue.add(payload);
-    }
   }
 
   @TearDown(Iteration)
   public void tearDown () throws Exception {
-    ((AutoCloseable) queue).close();
-    deleteFolder(FOLDER);
+    queue.close();
+    deleteFolder(QUEUE_FILE);
   }
 
   @SneakyThrows
@@ -116,7 +93,8 @@ public class BatchedIteratorBenchmarks {
       return;
     }
 
-    Files.walk(path)
+    val folder = path.getParent();
+    Files.walk(folder)
         .sorted(reverseOrder())
         .map(Path::toFile)
         .forEach(File::delete);
