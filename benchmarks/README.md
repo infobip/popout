@@ -25,12 +25,12 @@ This benchamark show us a comparative write operations with different threads nu
 
 | Benchmark                                                                                | Threads | Mode  | Score       |      Error | Units |
 |:-----------------------------------------------------------------------------------------|:-------:|:-----:|------------:|-----------:|:------|
-| [Batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedWriteBenchmarks.java) |    1    | thrpt |  483900.090 |  12183.906 | ops/s |
-| [Batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedWriteBenchmarks.java) |    2    | thrpt |  476730.573 |  27742.989 | ops/s |
-| [Batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedWriteBenchmarks.java) |    8    | thrpt |  230877.465 |   7111.418 | ops/s |
-| [Synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedWriteBenchmarks.java)   |    1    | thrpt |   12575.638 |    606.869 | ops/s |
-| [Synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedWriteBenchmarks.java)   |    2    | thrpt |   12117.054 |    449.219 | ops/s |
-| [Synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedWriteBenchmarks.java)   |    8    | thrpt |   11827.501 |   1100.236 | ops/s |
+| [batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedWriteBenchmarks.java) |    1    | thrpt |  483900.090 |  12183.906 | ops/s |
+| [batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedWriteBenchmarks.java) |    2    | thrpt |  476730.573 |  27742.989 | ops/s |
+| [batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedWriteBenchmarks.java) |    8    | thrpt |  230877.465 |   7111.418 | ops/s |
+| [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedWriteBenchmarks.java)   |    1    | thrpt |   12575.638 |    606.869 | ops/s |
+| [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedWriteBenchmarks.java)   |    2    | thrpt |   12117.054 |    449.219 | ops/s |
+| [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedWriteBenchmarks.java)   |    8    | thrpt |   11827.501 |   1100.236 | ops/s |
 | [tape](./src/main/java/org/infobip/lib/popout/benchmarks/TapeWriteBenchmarks2.java)      |    1    | thrpt |    1716.828 |    120.102 | ops/s |
 | [tape](./src/main/java/org/infobip/lib/popout/benchmarks/TapeWriteBenchmarks2.java)      |    2    | thrpt |    1737.029 |     99.037 | ops/s |
 | [tape](./src/main/java/org/infobip/lib/popout/benchmarks/TapeWriteBenchmarks2.java)      |    8    | thrpt |    1730.007 |     80.156 | ops/s |
