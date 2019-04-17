@@ -62,7 +62,7 @@ class BatchedFileQueueTests {
         .wal(WalFilesConfig.builder()
             .maxCount(2)
             .build())
-        .walElements(3)
+        .batchSize(3)
         .build();
 
     for (val character : chars) {
@@ -117,7 +117,7 @@ class BatchedFileQueueTests {
         .wal(WalFilesConfig.builder()
             .maxCount(2)
             .build())
-        .walElements(3)
+        .batchSize(3)
         .build();
 
     for (val character : chars) {
@@ -147,7 +147,7 @@ class BatchedFileQueueTests {
         .wal(WalFilesConfig.builder()
             .maxCount(2)
             .build())
-        .walElements(3)
+        .batchSize(3)
         .build();
 
     for (val character : string.toCharArray()) {
@@ -181,6 +181,48 @@ class BatchedFileQueueTests {
   }
 
   @Test
+  void compress () {
+    val builder = FileQueue.<Character>batched()
+        .name("batched-queue-compress")
+        .restoreFromDisk(true)
+        .folder(FOLDER)
+        .serializer(Serializer.CHARACTER)
+        .deserializer(Deserializer.CHARACTER)
+        .wal(WalFilesConfig.builder()
+            .maxCount(Integer.MAX_VALUE)
+            .build())
+        .batchSize(5);
+
+    val chars = UUID.randomUUID().toString().toCharArray();
+    try (val queue = builder.build()) {
+      for (val character : chars) {
+        queue.add(character);
+      }
+
+      assertThat(allFiles()).containsExactlyInAnyOrder(
+          file("batched-queue-compress-0.wal"),
+          file("batched-queue-compress-1.wal"),
+          file("batched-queue-compress-2.wal"),
+          file("batched-queue-compress-3.wal"),
+          file("batched-queue-compress-4.wal"),
+          file("batched-queue-compress-5.wal"),
+          file("batched-queue-compress-6.wal")
+      );
+
+      queue.compress();
+
+      assertThat(allFiles()).containsExactlyInAnyOrder(
+          file("batched-queue-compress-0.compressed")
+      );
+
+      for (int i = 0; i < chars.length; i++) {
+        val item = queue.poll();
+        assertThat(item).isEqualTo(chars[i]);
+      }
+    }
+  }
+
+  @Test
   void flush () {
     val builder = FileQueue.<Character>batched()
         .name("batched-queue-flush")
@@ -189,9 +231,9 @@ class BatchedFileQueueTests {
         .serializer(Serializer.CHARACTER)
         .deserializer(Deserializer.CHARACTER)
         .wal(WalFilesConfig.builder()
-            .maxCount(2)
+            .maxCount(4)
             .build())
-        .walElements(3);
+        .batchSize(5);
 
     val chars = UUID.randomUUID().toString().toCharArray();
     try (val queue = builder.build()) {
@@ -200,38 +242,23 @@ class BatchedFileQueueTests {
       }
 
       assertThat(queue.size()).isEqualTo(chars.length);
-      queue.flush();
     }
     assertThat(allFiles()).containsExactlyInAnyOrder(
         file("batched-queue-flush-0.compressed"),
-        file("batched-queue-flush-1.compressed"),
-        file("batched-queue-flush-2.compressed"),
-        file("batched-queue-flush-9.wal"),
-        file("batched-queue-flush-10.wal"),
-        file("batched-queue-flush.tail")
+        file("batched-queue-flush-5.wal"),
+        file("batched-queue-flush-6.wal"),
+        file("batched-queue-flush-7.wal")
     );
 
     try (val queue = builder.build()) {
       assertThat(queue.size()).isEqualTo(chars.length);
       assertThat(queue.peek()).isEqualTo(chars[0]);
-      queue.flush();
     }
     assertThat(allFiles()).containsExactlyInAnyOrder(
         file("batched-queue-flush-0.compressed"),
-        file("batched-queue-flush-1.compressed"),
-        file("batched-queue-flush-2.compressed"),
-        file("batched-queue-flush-9.wal"),
-        file("batched-queue-flush-10.wal"),
-        file("batched-queue-flush.tail"),
-        file("batched-queue-flush.head")
+        file("batched-queue-flush-5.wal"),
+        file("batched-queue-flush-6.wal"),
+        file("batched-queue-flush-7.wal")
     );
-
-    try (val queue = builder.build()) {
-      for (int i = 0; i < chars.length; i++) {
-        assertThat(queue.poll()).isEqualTo(chars[i]);
-      }
-      assertThat(queue.isEmpty()).isTrue();
-    }
-    assertThat(allFiles()).isEmpty();
   }
 }

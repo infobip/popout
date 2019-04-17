@@ -126,7 +126,10 @@ class QueueSerializer<T> {
     }
 
     @Override
-    @SuppressWarnings("PMD.AccessorMethodGeneration")
+    @SuppressWarnings({
+        "PMD.AccessorMethodGeneration",
+        "PMD.NPathComplexity"
+    })
     public boolean hasNext () {
       if (nextItem != null) {
         return true;
@@ -161,6 +164,10 @@ class QueueSerializer<T> {
             return;
           }
         } while (true);
+        if (!buffer.isWritable(length)) {
+          val newCapacity = buffer.writerIndex() + length;
+          buffer.capacity(newCapacity);
+        }
         val readed = ReadBytesUtils.read(channel, buffer, length);
         if (readed < length) {
           throw new IllegalStateException();

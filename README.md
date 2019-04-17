@@ -73,13 +73,16 @@ The differences between the `FileQueue` and the Java-default `java.util.Queue` i
 - `FileQueue`.`longSize` - returns the number of elements in this queue with wide range, than `int`;
 - `FileQueue`.`diskSize` - tells the amount of bytes, which the `queue` takes on the disk;
 - `FileQueue`.`flush` - flushes all this queue's data to the disk;
+- `FileQueue`.`compress` - manually compress all WAL-files into a compressed file;
 - `FileQueue`.`close` - flushes and closes the files descriptors of the queue.
 
 There are two main `FileQueue` implementations:
 
 - **synced** - every `add` operation is flushes on disk immediately and every `poll` reads the items from the disk directly. There is no buffers or something in-memory. It suits for cases, when you don't want to lose your data at all and you don't care about performance. It is the most reliable kind of the `FileQueue`;
 
-- **batched** - a concept of `tail` and `head` buffers is present here. You can specify a `walElements` option, which tells to the queue builder how many elements could be store in memory, before writing to the disk. Writes and reads to/from the disk operations are batched and it boosts the queue's performance, but you always should remember that in case of unexpected crash you could lose your *head* or *tail* data. This kind of queue suits well when your need more performant queue and you don't afraid to lose some amount of data, or you are ready to control it your self by invoking `flush` method.
+- **batched** - a concept of `tail` and `head` buffers is present here. You can specify a `batchSize` option, which tells to the queue builder how many elements could be store in memory, before writing to the disk. Writes and reads to/from the disk operations are batched and it boosts the queue's performance, but you always should remember that in case of unexpected crash you could lose your *head* or *tail* data. This kind of queue suits well when your need more performant queue and you don't afraid to lose some amount of data, or you are ready to control it your self by periodically invoking the `flush` method.
+
+> **NOTICE:** you also could instantiate WAL `maxCount` option and `batchSize` to `Integer.MAX_VALUE` and use `flush` and `compress` by yourself in fully manual manner.
 
 More advanced `FileQueue` usage:
 
@@ -114,7 +117,7 @@ Queue<Integer> queue = FileQueue.<Integer>batched()
             .maxSizeBytes(SizeUnit.MEGABYTES.toBytes(256))
             .build())
         // the amount of elements in one WAL file. only batched queue option
-        .walElements(10_000)
+        .batchSize(10_000)
         .build();
 ```
 

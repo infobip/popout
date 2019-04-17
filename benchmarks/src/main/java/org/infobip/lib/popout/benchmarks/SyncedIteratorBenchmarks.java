@@ -16,7 +16,7 @@
 
 package org.infobip.lib.popout.benchmarks;
 
-import static org.openjdk.jmh.annotations.Mode.Throughput;
+import static org.openjdk.jmh.annotations.Mode.SingleShotTime;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
@@ -41,57 +41,48 @@ import org.infobip.lib.popout.WalFilesConfig;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Group;
-import org.openjdk.jmh.annotations.GroupThreads;
 import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
+import org.openjdk.jmh.annotations.Threads;
 import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.infra.ThreadParams;
 
 import lombok.SneakyThrows;
+import lombok.val;
 
 @Fork(2)
 @State(Benchmark)
 @OutputTimeUnit(SECONDS)
-@BenchmarkMode(Throughput)
-@Warmup(iterations = 1, time = 1, timeUnit = MINUTES)
-@Measurement(iterations = 3, time = 1, timeUnit = MINUTES)
-public class BatchedReadWriteBenchmarks {
+@Warmup(iterations = 1)
+@Measurement(iterations = 3)
+@BenchmarkMode(SingleShotTime)
+public class SyncedIteratorBenchmarks {
 
-  private static final Path FOLDER = Paths.get("./batched_benchmarks");
+  private static final Path FOLDER = Paths.get("./synced_benchmarks");
 
   Queue<byte[]> queue;
 
-  byte[] payload;
-
   @Benchmark
-  @Group("batched_read_write")
-  @GroupThreads(3)
-  public void write (ThreadParams threadParams, Blackhole blackhole) {
-    boolean result = queue.add(payload);
-    blackhole.consume(result);
+  public void iterate (Blackhole blackhole) {
+    val iterator = queue.iterator();
+    while (iterator.hasNext()) {
+      val item = iterator.next();
+      blackhole.consume(item);
+    }
   }
 
-  @Benchmark
-  @Group("batched_read_write")
-  @GroupThreads(1)
-  public void read (ThreadParams threadParams, Blackhole blackhole) {
-    byte[] result = queue.poll();
-    blackhole.consume(result);
-  }
-
-  @SneakyThrows
   @Setup(Iteration)
+  @SneakyThrows
   public void setup () {
     deleteFolder(FOLDER);
     Files.createDirectories(FOLDER);
 
-    queue = FileQueue.<byte[]>batched()
-        .name("sync-read-write")
+    queue = FileQueue.<byte[]>synced()
+        .name("synced-iterator")
         .folder(FOLDER)
         .serializer(Serializer.BYTE_ARRAY)
         .deserializer(Deserializer.BYTE_ARRAY)
@@ -103,13 +94,16 @@ public class BatchedReadWriteBenchmarks {
             .build())
         .compressed(CompressedFilesConfig.builder()
             .folder(FOLDER)
-            .maxSizeBytes(MEGABYTES.toBytes(16))
+            .maxSizeBytes(MEGABYTES.toBytes(256))
             .build())
-        .batchSize(10_000)
         .build();
 
-    payload = new byte[512];
+    val payload = new byte[512];
     ThreadLocalRandom.current().nextBytes(payload);
+
+    for (int i = 0; i < 1_000_000; i++) {
+      queue.add(payload);
+    }
   }
 
   @TearDown(Iteration)

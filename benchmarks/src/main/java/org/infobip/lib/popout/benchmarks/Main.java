@@ -73,7 +73,7 @@ public class Main {
             .folder(TEST_FILES)
             .maxSizeBytes(MEGABYTES.toBytes(256))
             .build())
-        .walElements(10_000);
+        .batchSize(10_000);
   }
 
   @SneakyThrows

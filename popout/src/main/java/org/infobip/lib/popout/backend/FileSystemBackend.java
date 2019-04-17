@@ -79,10 +79,17 @@ public class FileSystemBackend implements Iterable<WalContent> {
     walFiles.write(buffer);
 
     while (walFiles.isLimitExceeded()) {
-      val files = walFiles.getFiles();
-      val result = compressedFiles.compress(files);
-      walFiles.remove(result.getCompressed());
+      compress();
     }
+  }
+
+  /**
+   * Merges all WAL files into one big compressed file.
+   */
+  public void compress () {
+    val files = walFiles.getFiles();
+    val result = compressedFiles.compress(files);
+    walFiles.remove(result.getCompressed());
   }
 
   /**

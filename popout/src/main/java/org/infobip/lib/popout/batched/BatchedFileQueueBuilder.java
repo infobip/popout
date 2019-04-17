@@ -37,7 +37,7 @@ public class BatchedFileQueueBuilder<T> extends FileQueue.Builder<BatchedFileQue
 
   public static final int MEMORY_ELEMENTS_MIN = 1;
 
-  long walElements;
+  long batchSize;
 
   /**
    * Sets the amount of queue's elements placed in one WAL file.
@@ -46,8 +46,8 @@ public class BatchedFileQueueBuilder<T> extends FileQueue.Builder<BatchedFileQue
    *
    * @return this queue builder, for chain calls
    */
-  public BatchedFileQueueBuilder<T> walElements (int value) {
-    walElements = value;
+  public BatchedFileQueueBuilder<T> batchSize (int value) {
+    batchSize = value;
     return this;
   }
 
@@ -59,8 +59,8 @@ public class BatchedFileQueueBuilder<T> extends FileQueue.Builder<BatchedFileQue
   @Override
   protected void validateAndSetDefaults () {
     super.validateAndSetDefaults();
-    if (walElements <= MEMORY_ELEMENTS_MIN) {
-      throw new IllegalArgumentException("walElements - must be greater than 1");
+    if (batchSize <= MEMORY_ELEMENTS_MIN) {
+      throw new IllegalArgumentException("batchSize - must be greater than 1");
     }
   }
 }

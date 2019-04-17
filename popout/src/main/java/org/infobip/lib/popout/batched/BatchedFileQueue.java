@@ -55,8 +55,6 @@ class BatchedFileQueue<T> extends FileQueue<T> {
 
   QueueLimit<T> limit;
 
-  Backup<T> backup;
-
   Lock writeLock;
 
   Lock readLock;
@@ -76,34 +74,10 @@ class BatchedFileQueue<T> extends FileQueue<T> {
         .deserializer(builder.getDeserializer())
         .build();
 
-    backup = Backup.<T>builder()
-        .queueName(builder.getName())
-        .folder(builder.getCompressedFilesConfig().getFolder())
-        .build();
-
     size = new LongAdder();
 
     head = new LinkedList<>();
-    if (backup.hasHead()) {
-      val queue = ReadWriteBytesPool.getInstance().borrow(buffer -> {
-        return backup.restoreHead(buffer) > 0
-               ? queueSerializer.deserialize(buffer)
-               : null;
-      });
-      queue.forEach(head::offer);
-      size.add(head.size());
-    }
-
-    tail = new LimitedQueue<>(builder.getWalElements());
-    if (backup.hasTail()) {
-      val queue = ReadWriteBytesPool.getInstance().borrow(buffer -> {
-        return backup.restoreTail(buffer) > 0
-               ? queueSerializer.deserialize(buffer)
-               : null;
-      });
-      queue.forEach(tail::offer);
-      size.add(tail.size());
-    }
+    tail = new LimitedQueue<>(builder.getBatchSize());
 
     val iterator = backend.iterator();
     while (iterator.hasNext()) {
@@ -130,14 +104,7 @@ class BatchedFileQueue<T> extends FileQueue<T> {
         size.increment();
         return true;
       }
-
-      ReadWriteBytesPool.getInstance().borrow(buffer -> {
-        queueSerializer.serialize(tail, buffer);
-        backend.write(buffer);
-        return null;
-      });
-
-      tail = new LimitedQueue<>(tail.size());
+      flush();
       tail.add(value);
       size.increment();
     } finally {
@@ -178,24 +145,27 @@ class BatchedFileQueue<T> extends FileQueue<T> {
   @Override
   public void flush () {
     writeLock.lock();
-    readLock.lock();
     try {
-      if (!tail.isEmpty()) {
-        ReadWriteBytesPool.getInstance().borrow(buffer -> {
-          queueSerializer.serialize(tail, buffer);
-          backup.backupTail(buffer);
-          return null;
-        });
+      if (tail.isEmpty()) {
+        return;
       }
-      if (!head.isEmpty()) {
-        ReadWriteBytesPool.getInstance().borrow(buffer -> {
-          queueSerializer.serialize(head, buffer);
-          backup.backupHead(buffer);
-          return null;
-        });
-      }
+      ReadWriteBytesPool.getInstance().borrow(buffer -> {
+        queueSerializer.serialize(tail, buffer);
+        backend.write(buffer);
+        return null;
+      });
+      tail = new LimitedQueue<>(tail.size());
     } finally {
-      readLock.unlock();
+      writeLock.unlock();
+    }
+  }
+
+  @Override
+  public void compress () {
+    writeLock.lock();
+    try {
+      backend.compress();
+    } finally {
       writeLock.unlock();
     }
   }

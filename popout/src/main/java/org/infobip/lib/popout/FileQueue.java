@@ -86,6 +86,11 @@ public abstract class FileQueue<T> extends AbstractQueue<T> implements AutoClose
    */
   public abstract void flush ();
 
+  /**
+   * Compresses the WAL files manually.
+   */
+  public abstract void compress ();
+
   @Override
   public abstract void close ();
 

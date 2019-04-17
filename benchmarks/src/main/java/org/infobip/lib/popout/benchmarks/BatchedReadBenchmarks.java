@@ -126,7 +126,7 @@ public class BatchedReadBenchmarks {
             .folder(TEST_FILES)
             .maxSizeBytes(MEGABYTES.toBytes(256))
             .build())
-        .walElements(10_000);
+        .batchSize(10_000);
 
     log.info("Creating temporary files for READ benchmark tests");
     try (val tmpQueue = builder.build()) {
@@ -160,7 +160,7 @@ public class BatchedReadBenchmarks {
             .folder(FOLDER)
             .maxSizeBytes(MEGABYTES.toBytes(256))
             .build())
-        .walElements(10_000)
+        .batchSize(10_000)
         .build();
   }
 

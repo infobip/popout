@@ -132,6 +132,12 @@ class SyncedFileQueue<T> extends FileQueue<T> {
   }
 
   @Override
+  @Synchronized
+  public void compress () {
+    backend.compress();
+  }
+
+  @Override
   public Iterator<T> iterator () {
     return new SyncedFileQueueIterator();
   }
@@ -168,6 +174,10 @@ class SyncedFileQueue<T> extends FileQueue<T> {
         nextWalContent = null;
         walContent.open((length, channel) -> {
           buffer.reset();
+          if (!buffer.isWritable(length)) {
+            val newCapacity = buffer.writerIndex() + length;
+            buffer.capacity(newCapacity);
+          }
           ReadBytesUtils.read(channel, buffer);
         });
         return serialization.deserialize(buffer);

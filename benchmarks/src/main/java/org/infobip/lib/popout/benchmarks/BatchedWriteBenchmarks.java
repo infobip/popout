@@ -109,7 +109,7 @@ public class BatchedWriteBenchmarks {
             .folder(FOLDER)
             .maxSizeBytes(MEGABYTES.toBytes(256))
             .build())
-        .walElements(10_000)
+        .batchSize(10_000)
         .build();
 
     payload = new byte[512];

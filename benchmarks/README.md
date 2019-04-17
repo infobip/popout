@@ -12,39 +12,67 @@ For benchmarking we are using two different machines:
 ### Write operations
 
 - **JMH version:** 1.21
-- **VM version:** JDK 1.8.0_202, Java HotSpot(TM) 64-Bit Server VM, 25.202-b08
+- **VM version:** JDK 1.8.0_212, Java HotSpot(TM) 64-Bit Server VM, 25.212-b10
 - **VM options:** -Xms256m -Xmx1G
 - **Warmup:** 1 iterations, 1 min each
 - **Measurement:** 3 iterations, 1 min each
 - **Timeout:** 10 min per iteration
 - **Benchmark mode:** Throughput, ops/time
 
+This benchamark show us a comparative write operations with different threads numbers (1/2/8).
+
 **SSD** `DigitalOcean` droplet:
 
-| Benchmark                              | Mode  | Score       |      Error | Units |
-|:---------------------------------------|:-----:|------------:|-----------:|:------|
-| BatchedWriteBenchmarks.write_threads_1 | thrpt |  390608.646 |  65620.533 | ops/s |
-| BatchedWriteBenchmarks.write_threads_2 | thrpt |  401681.251 |  15727.514 | ops/s |
-| BatchedWriteBenchmarks.write_threads_8 | thrpt |  223740.048 |   4260.939 | ops/s |
-| SyncedWriteBenchmarks.write_threads_1  | thrpt |   12463.132 |    676.496 | ops/s |
-| SyncedWriteBenchmarks.write_threads_2  | thrpt |   12491.883 |    988.345 | ops/s |
-| SyncedWriteBenchmarks.write_threads_8  | thrpt |   12886.055 |    623.271 | ops/s |
+| Benchmark                                                                                | Threads | Mode  | Score       |      Error | Units |
+|:-----------------------------------------------------------------------------------------|:-------:|:-----:|------------:|-----------:|:------|
+| [Batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedWriteBenchmarks.java) |    1    | thrpt |  416493.732 |  48490.629 | ops/s |
+| [Batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedWriteBenchmarks.java) |    2    | thrpt |  431726.683 |  38066.841 | ops/s |
+| [Batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedWriteBenchmarks.java) |    8    | thrpt |  201545.938 |   9202.873 | ops/s |
+| [Synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedWriteBenchmarks.java)   |    1    | thrpt |    9142.644 |    631.290 | ops/s |
+| [Synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedWriteBenchmarks.java)   |    2    | thrpt |    9130.862 |    110.159 | ops/s |
+| [Synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedWriteBenchmarks.java)   |    8    | thrpt |    8758.429 |    856.279 | ops/s |
 
 **HDD** slow VPS machine:
 
-| Benchmark                              | Mode  | Score       |      Error | Units |
-|:---------------------------------------|:-----:|------------:|-----------:|:------|
-| BatchedWriteBenchmarks.write_threads_1 | thrpt |  340781.298 |  11799.089 | ops/s |
-| BatchedWriteBenchmarks.write_threads_2 | thrpt |  336733.038 |  20886.520 | ops/s |
-| BatchedWriteBenchmarks.write_threads_8 | thrpt |   82755.301 |   3561.014 | ops/s |
-| SyncedWriteBenchmarks.write_threads_1  | thrpt |    4065.916 |    394.432 | ops/s |
-| SyncedWriteBenchmarks.write_threads_2  | thrpt |    3984.433 |    359.567 | ops/s |
-| SyncedWriteBenchmarks.write_threads_8  | thrpt |    4009.548 |    219.911 | ops/s |
+| Benchmark                                                                                | Threads | Mode  | Score       | Error      | Units |
+|:-----------------------------------------------------------------------------------------|:-------:|:-----:|------------:|-----------:|:------|
+| [Batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedWriteBenchmarks.java) |    1    | thrpt |  339326.888 |  30363.049 | ops/s |
+| [Batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedWriteBenchmarks.java) |    2    | thrpt |  334198.205 |  18257.508 | ops/s |
+| [Batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedWriteBenchmarks.java) |    8    | thrpt |   82094.633 |   5595.660 | ops/s |
+| [Synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedWriteBenchmarks.java)   |    1    | thrpt |    4032.630 |    361.506 | ops/s |
+| [Synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedWriteBenchmarks.java)   |    2    | thrpt |    3973.133 |    270.485 | ops/s |
+| [Synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedWriteBenchmarks.java)   |    8    | thrpt |    3912.688 |    388.949 | ops/s |
+
+### Iteration over queue from disk
+
+- **JMH version:** 1.21
+- **VM version:** JDK 1.8.0_212, Java HotSpot(TM) 64-Bit Server VM, 25.212-b10
+- **VM options:** -Xms256m -Xmx1G
+- **Warmup:** 1 iterations, single-shot each
+- **Measurement:** 3 iterations, single-shot each
+- **Timeout:** 10 min per iteration
+- **Benchmark mode:** Single shot invocation time
+
+Here we tests the queue's iterators from different implementations. Preliminarily, we writes **one milliom** records of 512 bytes length data to disk, then iterates it via `batched`/`synced` iterators.
+
+**SSD** `DigitalOcean` droplet:
+
+| Benchmark                                                                                   | Mode | Score  | Error | Units |
+|:--------------------------------------------------------------------------------------------|:----:|-------:|------:|:------|
+| [batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedIteratorBenchmarks.java) |  ss  |  7.947 | 0.409 |  s/op |
+| [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedIteratorBenchmarks.java)   |  ss  | 76.041 | 2.770 |  s/op |
+
+**HDD** slow VPS machine:
+
+| Benchmark                                                                                   | Mode | Score   | Error  | Units |
+|:--------------------------------------------------------------------------------------------|:----:|--------:|-------:|:------|
+| [batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedIteratorBenchmarks.java) |  ss  |  31.665 |  0.707 |  s/op |
+| [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedIteratorBenchmarks.java)   |  ss  | 113.947 |  4.446 |  s/op |
 
 ### Simultaneous read/write operations
 
 - **JMH version:** 1.21
-- **VM version:** JDK 1.8.0_202, Java HotSpot(TM) 64-Bit Server VM, 25.202-b08
+- **VM version:** JDK 1.8.0_212, Java HotSpot(TM) 64-Bit Server VM, 25.212-b10
 - **VM options:** -Xms256m -Xmx1G
 - **Warmup:** 1 iterations, 1 min each
 - **Measurement:** 3 iterations, 1 min each
@@ -52,27 +80,29 @@ For benchmarking we are using two different machines:
 - **Threads:** 4 threads (1 group; 1x "read", 3x "write" in each group), will synchronize iterations
 - **Benchmark mode:** Throughput, ops/time
 
+In this test we have simultaneous write and read operations. There 3 threads to write and 1 thread to read in each test case.
+
 **SSD** `DigitalOcean` droplet:
 
-| Benchmark                                           | Mode  | Score       |      Error | Units |
-|:----------------------------------------------------|:-----:|------------:|-----------:|:------|
-| BatchedReadWriteBenchmarks.batched_read_write       | thrpt |  433546.427 |   9949.984 | ops/s |
-| BatchedReadWriteBenchmarks.batched_read_write:read  | thrpt |  216801.149 |   5071.868 | ops/s |
-| BatchedReadWriteBenchmarks.batched_read_write:write | thrpt |  216745.278 |   4879.510 | ops/s |
-| SyncedReadWriteBenchmarks.synced_read_write         | thrpt |   20504.507 |   1131.706 | ops/s |
-| SyncedReadWriteBenchmarks.synced_read_write:read    | thrpt |   10248.779 |    563.981 | ops/s |
-| SyncedReadWriteBenchmarks.synced_read_write:write   | thrpt |   10255.728 |    568.286 | ops/s |
+| Benchmark                                                                                    | Description   | Mode  | Score       | Error     | Units |
+|:---------------------------------------------------------------------------------------------|:-------------:|:-----:|------------:|----------:|:------|
+| [batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedReadWriteBenchmarks.java) | write + read  | thrpt |  356000.071 | 10689.895 | ops/s |
+| [batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedReadWriteBenchmarks.java) |     read      | thrpt |  177964.106 |  5317.090 | ops/s |
+| [batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedReadWriteBenchmarks.java) |     write     | thrpt |  178035.966 |  5376.288 | ops/s |
+| [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedReadWriteBenchmarks.java)   | write + read  | thrpt |   14696.753 |  1108.438 | ops/s |
+| [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedReadWriteBenchmarks.java)   |     read      | thrpt |    7347.880 |   579.236 | ops/s |
+| [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedReadWriteBenchmarks.java)   |     write     | thrpt |    7348.873 |   532.571 | ops/s |
 
 **HDD** slow VPS machine:
 
-| Benchmark                                           | Mode  | Score       |      Error | Units |
-|:----------------------------------------------------|:-----:|------------:|-----------:|:------|
-| BatchedReadWriteBenchmarks.batched_read_write       | thrpt |  128997.211 |   3545.615 | ops/s |
-| BatchedReadWriteBenchmarks.batched_read_write:read  | thrpt |   64480.888 |   1834.657 | ops/s |
-| BatchedReadWriteBenchmarks.batched_read_write:write | thrpt |   64516.322 |   1713.174 | ops/s |
-| SyncedReadWriteBenchmarks.synced_read_write         | thrpt |    6631.695 |    405.777 | ops/s |
-| SyncedReadWriteBenchmarks.synced_read_write:read    | thrpt |    3315.911 |    202.354 | ops/s |
-| SyncedReadWriteBenchmarks.synced_read_write:write   | thrpt |    3315.783 |    213.629 | ops/s |
+| Benchmark                                                                                    | Description   | Mode  | Score       | Error     | Units |
+|:---------------------------------------------------------------------------------------------|:-------------:|:-----:|------ -----:|----------:|:------|
+| [batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedReadWriteBenchmarks.java) | write + read  | thrpt |  129047.209 |   7322.019 | ops/s |
+| [batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedReadWriteBenchmarks.java) |     read      | thrpt |   64560.194 |   3678.515 | ops/s |
+| [batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedReadWriteBenchmarks.java) |     write     | thrpt |   64487.015 |   3644.530 | ops/s |
+| [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedReadWriteBenchmarks.java)   | write + read  | thrpt |    6671.062 |    550.223 | ops/s |
+| [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedReadWriteBenchmarks.java)   |     read      | thrpt |    3332.767 |    290.337 | ops/s |
+| [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedReadWriteBenchmarks.java)   |     write     | thrpt |    3338.295 |    262.319 | ops/s |
 
 ## How to setup the environment
 
