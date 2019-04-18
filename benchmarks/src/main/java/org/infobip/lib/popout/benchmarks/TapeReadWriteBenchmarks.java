@@ -127,6 +127,9 @@ public class TapeReadWriteBenchmarks {
     @SneakyThrows
     public synchronized byte[] poll () {
       val result = queue.peek();
+      if (result != null) {
+        queue.remove();
+      }
       return result;
     }
 

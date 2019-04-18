@@ -94,8 +94,6 @@ In this test we have simultaneous write and read operations. There 3 threads to 
 
 **SSD** `DigitalOcean` droplet:
 
-> **NOTICE:** `tape` has a "good" score, because of fast reads (around **30000**)...but it is rash reads of `NULL`s. Take a look at the write score - nearly **1600**, so the queue is almost always empty.
-
 | Benchmark                                                                                    | Description  | Mode  | Score       | Error     | Units |
 |:---------------------------------------------------------------------------------------------|:------------:|:-----:|------------:|----------:|:------|
 | [batched](./src/main/java/org/infobip/lib/popout/benchmarks/BatchedReadWriteBenchmarks.java) | write + read | thrpt |  429808.465 | 21900.206 | ops/s |
@@ -104,13 +102,11 @@ In this test we have simultaneous write and read operations. There 3 threads to 
 | [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedReadWriteBenchmarks.java)   | write + read | thrpt |   19979.111 |  1813.331 | ops/s |
 | [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedReadWriteBenchmarks.java)   |     read     | thrpt |    9979.437 |   906.492 | ops/s |
 | [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedReadWriteBenchmarks.java)   |     write    | thrpt |    9992.674 |   906.847 | ops/s |
-| [tape](./src/main/java/org/infobip/lib/popout/benchmarks/TapeReadWriteBenchmarks.java)       | write + read | thrpt |   32328.193 |  1500.906 | ops/s |
-| [tape](./src/main/java/org/infobip/lib/popout/benchmarks/TapeReadWriteBenchmarks.java)       |     read     | thrpt |   30704.119 |  1413.401 | ops/s |
-| [tape](./src/main/java/org/infobip/lib/popout/benchmarks/TapeReadWriteBenchmarks.java)       |     write    | thrpt |    1624.075 |    97.712 | ops/s |
+| [tape](./src/main/java/org/infobip/lib/popout/benchmarks/TapeReadWriteBenchmarks.java)       | write + read | thrpt |    2102.007 |   471.501 | ops/s |
+| [tape](./src/main/java/org/infobip/lib/popout/benchmarks/TapeReadWriteBenchmarks.java)       |     read     | thrpt |     642.981 |   114.442 | ops/s |
+| [tape](./src/main/java/org/infobip/lib/popout/benchmarks/TapeReadWriteBenchmarks.java)       |     write    | thrpt |    1459.027 |   359.274 | ops/s |
 
 **HDD** slow VPS machine:
-
-> **NOTICE:** `tape` has a "good" score, because of fast reads (around **6500**)...but it is rash reads of `NULL`s. Take a look at the write score - nearly **600**, so the queue is almost always empty.
 
 | Benchmark                                                                                    | Description  | Mode  | Score       | Error     | Units |
 |:---------------------------------------------------------------------------------------------|:------------:|:-----:|------------:|----------:|:------|
@@ -120,9 +116,9 @@ In this test we have simultaneous write and read operations. There 3 threads to 
 | [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedReadWriteBenchmarks.java)   | write + read | thrpt |    6597.817 |   381.055 | ops/s |
 | [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedReadWriteBenchmarks.java)   |     read     | thrpt |    3305.614 |   155.694 | ops/s |
 | [synced](./src/main/java/org/infobip/lib/popout/benchmarks/SyncedReadWriteBenchmarks.java)   |     write    | thrpt |    3292.204 |   250.553 | ops/s |
-| [tape](./src/main/java/org/infobip/lib/popout/benchmarks/TapeReadWriteBenchmarks.java)       | write + read | thrpt |    7104.478 |   785.961 | ops/s |
-| [tape](./src/main/java/org/infobip/lib/popout/benchmarks/TapeReadWriteBenchmarks.java)       |     read     | thrpt |    6511.880 |   755.388 | ops/s |
-| [tape](./src/main/java/org/infobip/lib/popout/benchmarks/TapeReadWriteBenchmarks.java)       |     write    | thrpt |     592.598 |    33.931 | ops/s |
+| [tape](./src/main/java/org/infobip/lib/popout/benchmarks/TapeReadWriteBenchmarks.java)       | write + read | thrpt |     609.900 |    26.262 | ops/s |
+| [tape](./src/main/java/org/infobip/lib/popout/benchmarks/TapeReadWriteBenchmarks.java)       |     read     | thrpt |     205.530 |    13.812 | ops/s |
+| [tape](./src/main/java/org/infobip/lib/popout/benchmarks/TapeReadWriteBenchmarks.java)       |     write    | thrpt |     487.370 |    25.255 | ops/s |
 
 ## How to setup the environment
 
