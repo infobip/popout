@@ -25,7 +25,7 @@ limitations under the License.
   <parent>
     <groupId>org.infobip.lib</groupId>
     <artifactId>parent</artifactId>
-    <version>2.0.1</version>
+    <version>2.0.2</version>
   </parent>
 
   <artifactId>benchmarks</artifactId>
@@ -34,16 +34,10 @@ limitations under the License.
 
   <dependencies>
     <dependency>
-      <groupId>io.appulse</groupId>
-      <artifactId>logging-java</artifactId>
-      <version>1.1.1</version>
-    </dependency>
-    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>popout</artifactId>
-      <version>2.0.1</version>
+      <version>${project.version}</version>
     </dependency>
-
     <dependency>
       <groupId>com.squareup.tape2</groupId>
       <artifactId>tape</artifactId>
@@ -55,11 +49,16 @@ limitations under the License.
       <artifactId>jmh-core</artifactId>
       <version>1.21</version>
     </dependency>
-
     <dependency>
       <groupId>org.openjdk.jmh</groupId>
       <artifactId>jmh-generator-annprocess</artifactId>
       <version>1.21</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
       <scope>provided</scope>
     </dependency>
   </dependencies>
