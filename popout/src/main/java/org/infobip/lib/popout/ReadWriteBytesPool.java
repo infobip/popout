@@ -20,6 +20,7 @@ import static lombok.AccessLevel.PRIVATE;
 
 import io.appulse.utils.Bytes;
 import io.appulse.utils.BytesPool;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
 import lombok.val;
@@ -59,7 +60,7 @@ public final class ReadWriteBytesPool {
    * @param consumer acquired buffer consumer.
    */
   @SneakyThrows
-  public <T> T borrow (ThrowableBytesConsumer<T> consumer) {
+  public <T> T borrow (@NonNull ThrowableBytesConsumer<T> consumer) {
     val buffer = pool.acquire();
     try {
       return consumer.consume(buffer);

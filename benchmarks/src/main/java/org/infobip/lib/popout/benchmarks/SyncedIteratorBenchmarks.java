@@ -19,7 +19,6 @@ package org.infobip.lib.popout.benchmarks;
 import static org.openjdk.jmh.annotations.Mode.SingleShotTime;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static java.util.concurrent.TimeUnit.MINUTES;
 import static io.appulse.utils.SizeUnit.MEGABYTES;
 import static java.util.Comparator.reverseOrder;
 import static org.openjdk.jmh.annotations.Level.Iteration;
@@ -46,10 +45,8 @@ import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
-import org.openjdk.jmh.annotations.Threads;
 import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.infra.Blackhole;
-import org.openjdk.jmh.infra.ThreadParams;
 
 import lombok.SneakyThrows;
 import lombok.val;

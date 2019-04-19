@@ -46,7 +46,7 @@ Include the dependency to your project's pom.xml file:
     <dependency>
         <groupId>org.infobip.lib</groupId>
         <artifactId>popout</artifactId>
-        <version>2.0.2</version>
+        <version>2.0.3</version>
     </dependency>
     ...
 </dependencies>
@@ -55,7 +55,7 @@ Include the dependency to your project's pom.xml file:
 or Gradle:
 
 ```groovy
-compile 'org.infobip.lib:poput:2.0.2'
+compile 'org.infobip.lib:popout:2.0.3'
 ```
 
 ### Create a queue
