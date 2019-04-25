@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Add batch write/read (using FileChannel) with customizable batch size;
 - Add concurrent access to queue (methods with `synchronized` keyword or based on locks).
 
+## [2.0.4](https://github.com/infobip/popout/releases/tag/2.0.4) - 2019-04-25
+
+### Changed
+
+- `FilesManager`.`getFilesFromFileSystem` returns *fast* empty `Queue` if tracked folder is empty.
+
 ## [2.0.3](https://github.com/infobip/popout/releases/tag/2.0.3) - 2019-04-20
 
 ### Changed

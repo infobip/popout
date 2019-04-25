@@ -16,13 +16,12 @@
 
 package org.infobip.lib.popout.benchmarks;
 
-import static org.openjdk.jmh.annotations.Mode.Throughput;
-
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.Comparator.reverseOrder;
 import static org.openjdk.jmh.annotations.Level.Iteration;
 import static org.openjdk.jmh.annotations.Scope.Benchmark;
+import static org.openjdk.jmh.annotations.Mode.Throughput;
 
 import java.io.File;
 import java.nio.file.Files;

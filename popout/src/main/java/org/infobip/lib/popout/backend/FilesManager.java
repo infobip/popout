@@ -91,6 +91,16 @@ final class FilesManager {
 
   @SneakyThrows
   Queue<Path> getFilesFromFileSystem () {
+    val file = folder.toFile();
+    if (file == null) {
+      throw new IllegalStateException();
+    }
+
+    val list = file.list();
+    if (list != null && list.length == 0) {
+      return new LinkedList<>();
+    }
+
     val byNamePattern = (Predicate<Path>) path ->
         ofNullable(path)
             .map(Path::getFileName)
