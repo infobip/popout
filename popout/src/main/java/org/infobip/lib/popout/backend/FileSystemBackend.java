@@ -16,12 +16,16 @@
 
 package org.infobip.lib.popout.backend;
 
+import static java.util.Optional.ofNullable;
 import static lombok.AccessLevel.PRIVATE;
 
 import java.util.Iterator;
+import java.util.function.Function;
 
 import org.infobip.lib.popout.CompressedFilesConfig;
+import org.infobip.lib.popout.FileQueue;
 import org.infobip.lib.popout.WalFilesConfig;
+import org.infobip.lib.popout.exception.CorruptedDataException;
 
 import io.appulse.utils.Bytes;
 import lombok.Builder;
@@ -31,9 +35,12 @@ import lombok.val;
 
 /**
  * The umbrella class for WAL and compressed files, for effective working with them.
+ *
+ * @since 2.0.1
+ * @author Artem Labazin
  */
 @FieldDefaults(level = PRIVATE, makeFinal = true)
-public class FileSystemBackend implements Iterable<WalContent> {
+public class FileSystemBackend implements Iterable<WalContent>, AutoCloseable {
 
   WalFiles walFiles;
 
@@ -54,18 +61,27 @@ public class FileSystemBackend implements Iterable<WalContent> {
   public FileSystemBackend (@NonNull String queueName,
                             @NonNull WalFilesConfig walConfig,
                             @NonNull CompressedFilesConfig compressedConfig,
-                            @NonNull Boolean restoreFromDisk
+                            Boolean restoreFromDisk,
+                            Function<CorruptedDataException, Boolean> corruptionHandler
   ) {
+    val restoreFromDiskValue = ofNullable(restoreFromDisk)
+        .orElse(Boolean.TRUE);
+
+    val corruptionHandlerValue = ofNullable(corruptionHandler)
+        .orElseGet(() -> new FileQueue.DefaultCorruptionHandler());
+
     walFiles = WalFiles.builder()
         .queueName(queueName)
-        .restoreFromDisk(restoreFromDisk)
+        .restoreFromDisk(restoreFromDiskValue)
         .config(walConfig)
+        .corruptionHandler(corruptionHandlerValue)
         .build();
 
     compressedFiles = CompressedFiles.builder()
         .queueName(queueName)
-        .restoreFromDisk(restoreFromDisk)
+        .restoreFromDisk(restoreFromDiskValue)
         .config(compressedConfig)
+        .corruptionHandler(corruptionHandlerValue)
         .build();
   }
 
@@ -132,6 +148,12 @@ public class FileSystemBackend implements Iterable<WalContent> {
   @Override
   public Iterator<WalContent> iterator () {
     return new FileSystemBackendIterator();
+  }
+
+  @Override
+  public void close () {
+    walFiles.close();
+    compressedFiles.close();
   }
 
   @FieldDefaults(level = PRIVATE)

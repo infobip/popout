@@ -61,6 +61,7 @@ class SyncedFileQueue<T> extends FileQueue<T> {
         .restoreFromDisk(builder.isRestoreFromDisk())
         .walConfig(builder.getWalFilesConfig())
         .compressedConfig(builder.getCompressedFilesConfig())
+        .corruptionHandler(builder.getCorruptionHandler())
         .build();
 
     size = new LongAdder();
@@ -144,7 +145,7 @@ class SyncedFileQueue<T> extends FileQueue<T> {
 
   @Override
   public void close () {
-    // nothing to close
+    backend.close();
   }
 
   private class SyncedFileQueueIterator implements Iterator<T> {

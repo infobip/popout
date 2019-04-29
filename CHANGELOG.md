@@ -13,6 +13,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Add batch write/read (using FileChannel) with customizable batch size;
 - Add concurrent access to queue (methods with `synchronized` keyword or based on locks).
 
+## [2.1.0](https://github.com/infobip/popout/releases/tag/2.1.0) - 2019-04-28
+
+### Added
+
+- `AutoCloseable` interface for backend services;
+- `FileQueueBuilder`.`corruptionHandler` - a handler for corrupted data from disk;
+- `CorruptedDataException` and `ReadingFromDiskException` for different IO reading exceptions.
+
+### Changed
+
+- `BatchedFileQueue` now **clear** its tail on flush, instead of creating new.
+
 ## [2.0.4](https://github.com/infobip/popout/releases/tag/2.0.4) - 2019-04-25
 
 ### Changed

@@ -23,16 +23,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.AbstractQueue;
+import java.util.function.Function;
 
 import org.infobip.lib.popout.Deserializer.DefaultDeserializer;
 import org.infobip.lib.popout.Serializer.DefaultSerializer;
 import org.infobip.lib.popout.batched.BatchedFileQueueBuilder;
+import org.infobip.lib.popout.exception.CorruptedDataException;
 import org.infobip.lib.popout.synced.SyncedFileQueueBuilder;
 
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
 /**
@@ -128,6 +131,8 @@ public abstract class FileQueue<T> extends AbstractQueue<T> implements AutoClose
     CompressedFilesConfig compressedFilesConfig;
 
     boolean restoreFromDisk = true;
+
+    Function<CorruptedDataException, Boolean> corruptionHandler = new DefaultCorruptionHandler();
 
     /**
      * Sets the queue's name. It uses in files names patters.
@@ -260,6 +265,30 @@ public abstract class FileQueue<T> extends AbstractQueue<T> implements AutoClose
     }
 
     /**
+     * Sets the bad segments reading handler.
+     * <p>
+     * In case of reading a bad segment in a compressed file or a whole WAL-file,
+     * the user can handle the occured exception and return:
+     * <ul>
+     * <li>
+     * {@code true} - skip the record and continue reading the file;
+     * </li>
+     * <li>
+     * {@code false} - stop reading the file, start the next one.
+     * </li>
+     * </ul>
+     * The default behaviour is - log the exception and continue reading.
+     *
+     * @param value the new value
+     *
+     * @return this queue builder, for chain calls
+     */
+    public SELF corruptionHandler (@NonNull Function<CorruptedDataException, Boolean> value) {
+      corruptionHandler = value;
+      return (SELF) this;
+    }
+
+    /**
      * Builds a new queue with parameters from the builder.
      *
      * @return a new queue
@@ -344,6 +373,16 @@ public abstract class FileQueue<T> extends AbstractQueue<T> implements AutoClose
               .build());
 
       Files.createDirectories(compressedFilesConfig.getFolder());
+    }
+  }
+
+  @Slf4j
+  public static class DefaultCorruptionHandler implements Function<CorruptedDataException, Boolean> {
+
+    @Override
+    public Boolean apply (CorruptedDataException exception) {
+      log.error("Corrupted data error", exception);
+      return Boolean.TRUE;
     }
   }
 }

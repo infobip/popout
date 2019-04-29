@@ -42,7 +42,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.val;
 
 @FieldDefaults(level = PRIVATE, makeFinal = true)
-final class FilesManager {
+final class FilesManager implements AutoCloseable {
 
   AtomicInteger index;
 
@@ -83,6 +83,11 @@ final class FilesManager {
       val lastPathIndex = getIndex(lastPath);
       index.set(lastPathIndex + 1);
     }
+  }
+
+  @Override
+  public void close () {
+    queue.clear();
   }
 
   Queue<Path> getFilesFromQueue () {

@@ -43,7 +43,6 @@ class BatchedFileQueue<T> extends FileQueue<T> {
 
   LongAdder size;
 
-  @NonFinal
   Queue<T> tail;
 
   FileSystemBackend backend;
@@ -64,9 +63,10 @@ class BatchedFileQueue<T> extends FileQueue<T> {
 
     backend = FileSystemBackend.builder()
         .queueName(builder.getName())
+        .restoreFromDisk(builder.isRestoreFromDisk())
         .walConfig(builder.getWalFilesConfig())
         .compressedConfig(builder.getCompressedFilesConfig())
-        .restoreFromDisk(builder.isRestoreFromDisk())
+        .corruptionHandler(builder.getCorruptionHandler())
         .build();
 
     queueSerializer = QueueSerializer.<T>builder()
@@ -154,7 +154,7 @@ class BatchedFileQueue<T> extends FileQueue<T> {
         backend.write(buffer);
         return null;
       });
-      tail = new LimitedQueue<>(tail.size());
+      tail.clear();
     } finally {
       writeLock.unlock();
     }
@@ -178,6 +178,7 @@ class BatchedFileQueue<T> extends FileQueue<T> {
   @Override
   public void close () {
     flush();
+    backend.close();
   }
 
   private T doOn (Function<Queue<T>, T> extractor) {

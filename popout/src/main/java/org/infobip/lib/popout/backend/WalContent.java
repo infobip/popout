@@ -33,6 +33,9 @@ import lombok.val;
  * The object could represent a whole file on the disk (WAL file)
  * or just a part of biger file (compressed file) with specific
  * {@code offset} and {@code length} values within that file.
+ *
+ * @since 2.0.0
+ * @author Artem Labazin
  */
 @Value
 @Builder

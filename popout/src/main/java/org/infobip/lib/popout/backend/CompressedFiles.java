@@ -19,6 +19,7 @@ package org.infobip.lib.popout.backend;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.READ;
 import static java.nio.file.StandardOpenOption.WRITE;
+import static java.util.Optional.ofNullable;
 import static lombok.AccessLevel.PRIVATE;
 
 import java.io.IOException;
@@ -28,19 +29,24 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.function.Function;
 
 import org.infobip.lib.popout.CompressedFilesConfig;
+import org.infobip.lib.popout.FileQueue;
+import org.infobip.lib.popout.exception.CorruptedDataException;
 
 import io.appulse.utils.Bytes;
 import io.appulse.utils.ReadBytesUtils;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.SneakyThrows;
+import lombok.Value;
 import lombok.experimental.FieldDefaults;
 import lombok.val;
 
 @FieldDefaults(level = PRIVATE, makeFinal = true)
-class CompressedFiles implements Iterable<WalContent> {
+class CompressedFiles implements Iterable<WalContent>, AutoCloseable {
 
   private static final byte[] CLEAR = new byte[8192];
 
@@ -48,27 +54,47 @@ class CompressedFiles implements Iterable<WalContent> {
 
   long maxFileSizeBytes;
 
+  Function<CorruptedDataException, Boolean> corruptionHandler;
+
   @Builder
   CompressedFiles (@NonNull String queueName,
-                   @NonNull Boolean restoreFromDisk,
-                   @NonNull CompressedFilesConfig config
+                   @NonNull CompressedFilesConfig config,
+                   Boolean restoreFromDisk,
+                   Function<CorruptedDataException, Boolean> corruptionHandler
   ) {
+    val restoreFromDiskValue = ofNullable(restoreFromDisk)
+        .orElse(Boolean.TRUE);
+
+    val corruptionHandlerValue = ofNullable(corruptionHandler)
+        .orElseGet(() -> new FileQueue.DefaultCorruptionHandler());
+
     files = FilesManager.builder()
         .folder(config.getFolder())
         .prefix(queueName + '-')
         .suffix(".compressed")
         .build();
 
-    if (!restoreFromDisk) {
+    if (!restoreFromDiskValue) {
       files.clear();
     }
 
     maxFileSizeBytes = config.getMaxSizeBytes();
+    this.corruptionHandler = corruptionHandlerValue;
+  }
+
+  @Override
+  public Iterator<WalContent> iterator () {
+    return new CompressedFileIteratorManyFiles(files.getFilesFromQueue());
+  }
+
+  @Override
+  public void close () {
+    files.close();
   }
 
   @SneakyThrows
-  int peekContentPart (@NonNull Bytes buffer) {
-    return readContent((channel, header) -> {
+  int peekContentPart (@NonNull Bytes bytes) {
+    return readTo(bytes, (channel, header, buffer) -> {
       val length = header.getLength();
       if (buffer.isWritable(length)) {
         val newCapacity = buffer.writerIndex() + length;
@@ -79,8 +105,8 @@ class CompressedFiles implements Iterable<WalContent> {
   }
 
   @SneakyThrows
-  int pollContentPart (@NonNull Bytes buffer) {
-    return readContent((channel, header) -> {
+  int pollContentPart (@NonNull Bytes bytes) {
+    return readTo(bytes, (channel, header, buffer) -> {
       val length = header.getLength();
       if (!buffer.isWritable(length)) {
         val newCapacity = buffer.writerIndex() + length;
@@ -96,37 +122,6 @@ class CompressedFiles implements Iterable<WalContent> {
       }
       return result;
     });
-  }
-
-  @SneakyThrows
-  private int readContent (RecordReader reader) {
-    val header = new RecordHeader();
-    do {
-      val file = files.peek();
-      if (file == null) {
-        return 0;
-      }
-
-      boolean shouldRemoveFile = false;
-      try (val channel = FileChannel.open(file, READ, WRITE)) {
-        header.skipJumps(channel);
-        if (header.isEnd()) {
-          shouldRemoveFile = true;
-        } else {
-          val readed = reader.read(channel, header);
-          if (readed == 0 || header.isEnd()) {
-            shouldRemoveFile = true;
-          }
-          if (readed > 0) {
-            return readed;
-          }
-        }
-      } finally {
-        if (shouldRemoveFile) {
-          files.remove(file);
-        }
-      }
-    } while (true);
   }
 
   @SneakyThrows
@@ -178,9 +173,58 @@ class CompressedFiles implements Iterable<WalContent> {
     return result;
   }
 
-  @Override
-  public Iterator<WalContent> iterator () {
-    return new CompressedFileIteratorManyFiles(files.getFilesFromQueue());
+  private int readTo (Bytes buffer, RecordReader reader) {
+    val writerIndex = buffer.writerIndex();
+    val readerIndex = buffer.readerIndex();
+
+    RecordHeader header = new RecordHeader();
+    do {
+      Path file = files.peek();
+      if (file == null) {
+        return 0;
+      }
+
+      val result = readTo(file, header, buffer, reader);
+      if (result.isRemoveFile()) {
+        files.remove(file);
+      }
+      if (result.hesReaded()) {
+        return (int) result.getReaded();
+      }
+
+      buffer.writerIndex(writerIndex);
+      buffer.readerIndex(readerIndex);
+    } while (true);
+  }
+
+  @SneakyThrows
+  private ReadResult readTo (Path file, RecordHeader header, Bytes buffer, RecordReader reader) {
+    FileChannel channel = null;
+    try {
+      channel = FileChannel.open(file, READ, WRITE);
+
+      header.skipJumps(channel);
+      if (header.isEnd()) {
+        return ReadResult.endOfFile();
+      }
+
+      val readed = reader.read(channel, header, buffer);
+      boolean shouldRemoveFile = readed == 0 || header.isEnd();
+      return new ReadResult(readed, shouldRemoveFile);
+    } catch (Exception ex) {
+      val offset = channel == null
+                   ? 0
+                   : channel.position();
+
+      val exception = new CorruptedDataException(file, offset, ex);
+      return corruptionHandler.apply(exception)
+             ? ReadResult.endOfFile()
+             : ReadResult.continueReading(offset);
+    } finally {
+      if (channel != null) {
+        channel.close();
+      }
+    }
   }
 
   @SneakyThrows
@@ -205,6 +249,27 @@ class CompressedFiles implements Iterable<WalContent> {
   @FunctionalInterface
   interface RecordReader {
 
-    int read (FileChannel channel, RecordHeader header) throws IOException;
+    int read (FileChannel channel, RecordHeader header, Bytes buffer) throws IOException;
+  }
+
+  @Value
+  @AllArgsConstructor
+  static class ReadResult {
+
+    static ReadResult endOfFile () {
+      return new ReadResult(0, true);
+    }
+
+    static ReadResult continueReading (long readed) {
+      return new ReadResult(readed, false);
+    }
+
+    long readed;
+
+    boolean removeFile;
+
+    boolean hesReaded () {
+      return readed > 0;
+    }
   }
 }

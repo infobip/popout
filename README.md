@@ -46,7 +46,7 @@ Include the dependency to your project's pom.xml file:
     <dependency>
         <groupId>org.infobip.lib</groupId>
         <artifactId>popout</artifactId>
-        <version>2.0.4</version>
+        <version>2.1.0</version>
     </dependency>
     ...
 </dependencies>
@@ -55,7 +55,7 @@ Include the dependency to your project's pom.xml file:
 or Gradle:
 
 ```groovy
-compile 'org.infobip.lib:popout:2.0.4'
+compile 'org.infobip.lib:popout:2.1.0'
 ```
 
 ### Create a queue
@@ -102,6 +102,8 @@ Queue<Integer> queue = FileQueue.<Integer>batched()
                 .handler(myQueueLimitExceededHandler))
         // restores from disk or not, during startup. If 'false' - the previous files will be removed
         .restoreFromDisk(false)
+        // handler for corrupted data from disk
+        .corruptionHandler(new MyCorruptionHandler())
         // WAL files configuration
         .wal(WalFilesConfig.builder()
             // the place where WAL files stores. Default is a queue's folder above
