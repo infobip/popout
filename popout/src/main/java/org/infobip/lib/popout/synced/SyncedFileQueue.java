@@ -67,6 +67,7 @@ class SyncedFileQueue<T> extends FileQueue<T> {
     size = new LongAdder();
     val iterator = backend.iterator();
     while (iterator.hasNext()) {
+      iterator.next();
       size.increment();
     }
   }
