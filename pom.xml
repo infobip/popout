@@ -254,6 +254,16 @@ limitations under the License.
             <fork>true</fork>
           </configuration>
         </plugin>
+        <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-jar-plugin</artifactId>
+		<configuration>
+		        <!-- exclude logback.xml -->
+			<excludes>
+				<exclude>**/logback.xml</exclude>
+			</excludes>
+		</configuration>
+	</plugin>
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
